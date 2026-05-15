@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "imVR6zv4Yv0=",
+  "success": true,
+  "projectFilePath": "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Api/JobTracker.Api.csproj",
+  "expectedPackageFiles": [
+    "/Users/inezyoon/.nuget/packages/microsoft.aspnetcore.openapi/9.0.8/microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
+    "/Users/inezyoon/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
