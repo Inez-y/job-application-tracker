@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {}
+    "net9.0": {
+      "JobTracker.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/JobTracker.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobTracker.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "JobTracker.Domain/1.0.0": {
+      "type": "project",
+      "path": "../JobTracker.Domain/JobTracker.Domain.csproj",
+      "msbuildProject": "../JobTracker.Domain/JobTracker.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net9.0": []
+    "net9.0": [
+      "JobTracker.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "/Users/inezyoon/.nuget/packages/": {}
@@ -31,7 +50,11 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Domain/JobTracker.Domain.csproj": {
+              "projectPath": "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Domain/JobTracker.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

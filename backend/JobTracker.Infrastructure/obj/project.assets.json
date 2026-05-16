@@ -1,11 +1,49 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {}
+    "net9.0": {
+      "JobTracker.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "dependencies": {
+          "JobTracker.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/JobTracker.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobTracker.Application.dll": {}
+        }
+      },
+      "JobTracker.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/JobTracker.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobTracker.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "JobTracker.Application/1.0.0": {
+      "type": "project",
+      "path": "../JobTracker.Application/JobTracker.Application.csproj",
+      "msbuildProject": "../JobTracker.Application/JobTracker.Application.csproj"
+    },
+    "JobTracker.Domain/1.0.0": {
+      "type": "project",
+      "path": "../JobTracker.Domain/JobTracker.Domain.csproj",
+      "msbuildProject": "../JobTracker.Domain/JobTracker.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net9.0": []
+    "net9.0": [
+      "JobTracker.Application >= 1.0.0",
+      "JobTracker.Domain >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "/Users/inezyoon/.nuget/packages/": {}
@@ -31,7 +69,14 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Application/JobTracker.Application.csproj": {
+              "projectPath": "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Application/JobTracker.Application.csproj"
+            },
+            "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Domain/JobTracker.Domain.csproj": {
+              "projectPath": "/Users/inezyoon/Desktop/school/projects/job-application-tracker/backend/JobTracker.Domain/JobTracker.Domain.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
