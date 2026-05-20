@@ -3,6 +3,7 @@ namespace JobTracker.Domain.Entities;
 public class JobApplication
 {
     public Guid Id { get; set; } = Guid.NewGuid();
+    public User? User { get; set; }
 
     public Guid UserId { get; set; }
 

@@ -2,3 +2,7 @@
 
 [Bb]in/
 [Oo]bj/
+
+.fake
+
+.DS_Store
