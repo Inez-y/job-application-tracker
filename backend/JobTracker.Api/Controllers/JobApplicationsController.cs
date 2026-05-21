@@ -72,4 +72,70 @@ public class JobApplicationsController : ControllerBase
 
         return Guid.Parse(userIdValue);
     }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<JobApplication>> GetById(Guid id)
+    {
+        var userId = GetCurrentUserId();
+        
+        var application = await _dbContext.JobApplications
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+        if (application is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(application);
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<JobApplication>> Update(
+        Guid id,
+        UpdateJobApplicationRequest request)
+    {
+        var userId = GetCurrentUserId();
+
+        var application = await _dbContext.JobApplications
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+        if (application is null)
+        {
+            return NotFound();
+        }
+
+        application.CompanyName = request.CompanyName;
+        application.JobTitle = request.JobTitle;
+        application.Location = request.Location;
+        application.JobUrl = request.JobUrl;
+        application.Status = request.Status;
+        application.DateApplied = request.DateApplied;
+        application.Deadline = request.Deadline;
+        application.SalaryRange = request.SalaryRange;
+        application.Notes = request.Notes;
+        application.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(application);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var userId = GetCurrentUserId();
+
+        var application = await _dbContext.JobApplications
+            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+
+        if (application is null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.JobApplications.Remove(application);
+        await _dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
