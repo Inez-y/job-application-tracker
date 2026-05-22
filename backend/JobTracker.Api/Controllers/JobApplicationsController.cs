@@ -33,14 +33,55 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobApplication>>> GetAll()
+    public async Task<ActionResult<List<JobApplication>>> GetAll(
+        [FromQuery] GetJobApplicationQuery query)
     {
         var userId = GetCurrentUserId();
 
-        var applications = await _dbContext.JobApplications
+        var applicationsQuery = _dbContext.JobApplications
             .Where(x => x.UserId == userId)
-            .OrderByDescending(x => x.CreatedAt)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim().ToLower();
+
+            applicationsQuery = applicationsQuery
+                .Where(x => x.CompanyName.ToLower().Contains(search) ||
+                            x.JobTitle.ToLower().Contains(search) ||
+                            (x.Location != null && x.Location.ToLower().Contains(search))
+                        );
+                        
+        }
+
+        if (query.Status.HasValue)
+        {
+            applicationsQuery = applicationsQuery.Where(x => x.Status == query.Status.Value);
+        }
+
+        var sortBy = query.SortBy?.Trim().ToLower();
+        var sortDirection = query.SortDirection?.Trim().ToLower();
+
+        applicationsQuery = sortBy switch
+        {
+            "company" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.CompanyName)
+                : applicationsQuery.OrderByDescending(x => x.CompanyName),
+
+            "jobtitle" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.JobTitle)
+                : applicationsQuery.OrderByDescending(x => x.JobTitle),
+
+            "deadline" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.Deadline)
+                : applicationsQuery.OrderByDescending(x => x.Deadline),
+
+            "dateupdated" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.CreatedAt)
+                : applicationsQuery.OrderByDescending(x => x.CreatedAt)
+        };
+
+        var applications = await applicationsQuery.ToListAsync();
 
         return Ok(applications);
     }
