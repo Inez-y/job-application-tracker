@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<JobApplication> JobApplications => Set<JobApplication>();
+    public DbSet<ApplicationNote> ApplicationNotes => Set<ApplicationNote>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -62,5 +63,19 @@ public class AppDbContext : DbContext
                     .WithMany(x => x.JobApplications)
                     .HasForeignKey(x => x.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
+    
+        modelBuilder.Entity<ApplicationNote>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Content)
+                .IsRequired()
+                .HasMaxLength(5000);
+
+            entity.HasOne(x => x.JobApplication)
+                .WithMany(x => x.ApplicationNotes)
+                .HasForeignKey(x => x.JobApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }

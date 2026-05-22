@@ -16,6 +16,7 @@ public class JobApplication
     public string? JobUrl { get; set; }
 
     public ApplicationStatus Status { get; set; } = ApplicationStatus.Wishlist;
+    public List<ApplicationNote> ApplicationNotes { get; set; } = new();
 
     public DateTime? DateApplied { get; set; }
 
