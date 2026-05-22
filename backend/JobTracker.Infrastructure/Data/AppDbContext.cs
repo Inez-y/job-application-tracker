@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<JobApplication> JobApplications => Set<JobApplication>();
     public DbSet<ApplicationNote> ApplicationNotes => Set<ApplicationNote>();
+    public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -77,5 +78,16 @@ public class AppDbContext : DbContext
                 .HasForeignKey(x => x.JobApplicationId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<ApplicationStatusHistory>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasOne(x => x.JobApplication)
+                .WithMany(x => x.StatusHistory)
+                .HasForeignKey(x => x.JobApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
     }
 }

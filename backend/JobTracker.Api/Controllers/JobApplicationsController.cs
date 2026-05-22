@@ -15,6 +15,18 @@ public class JobApplicationsController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
 
+    private Guid GetCurrentUserId()
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(userIdValue))
+        {
+            throw new UnauthorizedAccessException("User ID claim is missing.");
+        }
+
+        return Guid.Parse(userIdValue);
+    }
+
     public JobApplicationsController(AppDbContext dbContext)
     {
         _dbContext = dbContext;
@@ -61,18 +73,6 @@ public class JobApplicationsController : ControllerBase
         return CreatedAtAction(nameof(GetAll), new { id = application.Id }, application);
     }
 
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<JobApplication>> GetById(Guid id)
     {
@@ -104,6 +104,8 @@ public class JobApplicationsController : ControllerBase
             return NotFound();
         }
 
+        var oldStatus = application.Status;
+
         application.CompanyName = request.CompanyName;
         application.JobTitle = request.JobTitle;
         application.Location = request.Location;
@@ -114,6 +116,20 @@ public class JobApplicationsController : ControllerBase
         application.SalaryRange = request.SalaryRange;
         application.Notes = request.Notes;
         application.UpdatedAt = DateTime.UtcNow;
+
+        if (oldStatus != request.Status)
+        {
+            var history = new ApplicationStatusHistory
+            {
+                Id = Guid.NewGuid(),
+                JobApplicationId = application.Id,
+                OldStatus = oldStatus,
+                NewStatus = request.Status,
+                ChangedAt = DateTime.UtcNow
+            };
+
+            _dbContext.ApplicationStatusHistories.Add(history);
+        }
 
         await _dbContext.SaveChangesAsync();
 
@@ -137,5 +153,26 @@ public class JobApplicationsController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    [HttpGet("{id:guid}/status-history")]
+    public async Task<ActionResult<List<ApplicationStatusHistory>>> GetStatusHistory(Guid id)
+    {
+        var userId = GetCurrentUserId();
+
+        var jobExists = await _dbContext.JobApplications
+            .AnyAsync(x => x.Id == id && x.UserId == userId);
+
+        if (!jobExists)
+        {
+            return NotFound();
+        }
+
+        var history = await _dbContext.ApplicationStatusHistories
+            .Where(x => x.JobApplicationId == id)
+            .OrderByDescending(x => x.ChangedAt)
+            .ToListAsync();
+
+        return Ok(history);
     }
 }
