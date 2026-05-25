@@ -5,6 +5,7 @@ using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using JobTracker.Api.Mappers;
 
 namespace JobTracker.Api.Controllers;
 
@@ -33,7 +34,7 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobApplication>>> GetAll(
+    public async Task<ActionResult<List<JobApplicationResponse>>> GetAll(
         [FromQuery] GetJobApplicationQuery query)
     {
         var userId = GetCurrentUserId();
@@ -83,11 +84,11 @@ public class JobApplicationsController : ControllerBase
 
         var applications = await applicationsQuery.ToListAsync();
 
-        return Ok(applications);
+        return Ok(applications.Select(x => x.ToResponse()).ToList());
     }
 
     [HttpPost]
-    public async Task<ActionResult<JobApplication>> Create(CreateJobApplicationRequest request)
+    public async Task<ActionResult<JobApplicationResponse>> Create(CreateJobApplicationRequest request)
     {
         var userId = GetCurrentUserId();
 
@@ -111,11 +112,15 @@ public class JobApplicationsController : ControllerBase
         _dbContext.JobApplications.Add(application);
         await _dbContext.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetAll), new { id = application.Id }, application);
+        return CreatedAtAction(
+            nameof(GetAll), 
+            new { id = application.Id }, 
+            application.ToResponse()
+        );
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<JobApplication>> GetById(Guid id)
+    public async Task<ActionResult<JobApplicationResponse>> GetById(Guid id)
     {
         var userId = GetCurrentUserId();
         
@@ -127,7 +132,7 @@ public class JobApplicationsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(application);
+        return Ok(application.ToResponse());
     }
 
     [HttpPut("{id:guid}")]
@@ -174,7 +179,7 @@ public class JobApplicationsController : ControllerBase
 
         await _dbContext.SaveChangesAsync();
 
-        return Ok(application);
+        return Ok(application.ToResponse());
     }
 
     [HttpDelete("{id:guid}")]

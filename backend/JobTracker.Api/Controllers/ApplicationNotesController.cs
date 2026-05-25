@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using JobTracker.Api.Contracts.ApplicationNotes;
+using JobTracker.Api.Mappers;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +50,7 @@ public class ApplicationNotesController : ControllerBase
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
 
-        return Ok(notes);
+        return Ok(notes.Select(x => x.ToResponse()).ToList());
     }
 
     [HttpPost]
@@ -78,7 +79,7 @@ public class ApplicationNotesController : ControllerBase
         _dbContext.ApplicationNotes.Add(note);
         await _dbContext.SaveChangesAsync();
 
-        return Ok(note);
+        return Ok(note.ToResponse());
     }
 
     [HttpDelete("{noteId:guid}")]
