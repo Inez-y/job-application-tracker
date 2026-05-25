@@ -122,4 +122,22 @@ public class AuthController : ControllerBase
             UserId = user.Id
         });
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(LogoutRequest request)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.RefreshToken == request.RefreshToken);
+        if (user is null)
+        {
+            return NoContent();
+        }
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpiresAt = null;
+
+        await _dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
