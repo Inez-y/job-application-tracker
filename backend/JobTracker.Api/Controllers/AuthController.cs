@@ -27,6 +27,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
         var email = request.Email.Trim().ToLower();
+        var refreshToken = _jwtTokenService.CreateRefreshToken();
 
         var existingUser = await _dbContext.Users.AnyAsync(x => x.Email == email);
         if (existingUser)
@@ -43,13 +44,16 @@ public class AuthController : ControllerBase
             CreatedAt = DateTime.UtcNow
         };
 
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
         user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
         
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
 
         return Ok(new AuthResponse {
-            Token = _jwtTokenService.CreateToken(user),
+            AccessToken = _jwtTokenService.CreateToken(user),
+            RefreshToken = refreshToken,
             Email = user.Email,
             UserId = user.Id
         });
@@ -59,6 +63,7 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
         var email = request.Email.Trim().ToLower();
+        var refreshToken = _jwtTokenService.CreateRefreshToken();
 
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
         if (user is null)
@@ -76,9 +81,43 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalide email or password.");
         }
 
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+
+        await _dbContext.SaveChangesAsync();
+
         return Ok(new AuthResponse
         {
-            Token = _jwtTokenService.CreateToken(user),
+            AccessToken = _jwtTokenService.CreateToken(user),
+            RefreshToken = refreshToken,
+            Email = user.Email,
+            UserId = user.Id
+        });
+    }
+
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponse>> Refresh(RefreshTokenRequest request)
+    {
+        var user = await _dbContext.Users
+            .FirstOrDefaultAsync(x => x.RefreshToken == request.RefreshToken);
+        if (user is null ||
+            user.RefreshTokenExpiresAt is null ||
+            user.RefreshTokenExpiresAt <= DateTime.UtcNow)
+        {
+            return Unauthorized("Invalid or expired refresh token.");
+        }
+
+        var newRefreshToken = _jwtTokenService.CreateRefreshToken();
+
+        user.RefreshToken = newRefreshToken;
+        user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new AuthResponse
+        {
+            AccessToken = _jwtTokenService.CreateToken(user),
+            RefreshToken = newRefreshToken,
             Email = user.Email,
             UserId = user.Id
         });
