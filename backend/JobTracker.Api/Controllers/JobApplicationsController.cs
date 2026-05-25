@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Mappers;
+using JobTracker.Api.Contracts.Common;
 
 namespace JobTracker.Api.Controllers;
 
@@ -34,8 +35,8 @@ public class JobApplicationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<JobApplicationResponse>>> GetAll(
-        [FromQuery] GetJobApplicationQuery query)
+    public async Task<ActionResult<PagedResponse<JobApplicationResponse>>> GetAll(
+        [FromQuery] GetJobApplicationsQuery query)
     {
         var userId = GetCurrentUserId();
 
@@ -57,7 +58,8 @@ public class JobApplicationsController : ControllerBase
 
         if (query.Status.HasValue)
         {
-            applicationsQuery = applicationsQuery.Where(x => x.Status == query.Status.Value);
+            applicationsQuery = applicationsQuery
+                .Where(x => x.Status == query.Status.Value);
         }
 
         var sortBy = query.SortBy?.Trim().ToLower();
@@ -77,14 +79,40 @@ public class JobApplicationsController : ControllerBase
                 ? applicationsQuery.OrderBy(x => x.Deadline)
                 : applicationsQuery.OrderByDescending(x => x.Deadline),
 
+            "dateapplied" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.DateApplied)
+                : applicationsQuery.OrderByDescending(x => x.DateApplied),
+
             "dateupdated" => sortDirection == "asc"
+                ? applicationsQuery.OrderBy(x => x.UpdatedAt)
+                : applicationsQuery.OrderByDescending(x => x.UpdatedAt),
+
+            _ => sortDirection == "asc"
                 ? applicationsQuery.OrderBy(x => x.CreatedAt)
                 : applicationsQuery.OrderByDescending(x => x.CreatedAt)
         };
 
-        var applications = await applicationsQuery.ToListAsync();
+        var page = query.Page < 1 ? 1 : query.Page;
+        var pageSize = query.PageSize < 1 ? 10 : query.PageSize;
+        pageSize = pageSize > 50 ? 50 : pageSize;
 
-        return Ok(applications.Select(x => x.ToResponse()).ToList());
+        var totalCount = await applicationsQuery.CountAsync();
+
+        var applications = await applicationsQuery
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        var response = new PagedResponse<JobApplicationResponse>
+        {
+            Items = applications.Select(x => x.ToResponse()).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+
+        return Ok(response);
     }
 
     [HttpPost]
