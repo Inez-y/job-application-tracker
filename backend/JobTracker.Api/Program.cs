@@ -33,17 +33,24 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    });
 
-builder.Services.AddHealthChecks()
-    .AddNpgSql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Database connection string is missing."),
-        name: "postgres"
-    );
+    builder.Services.AddHealthChecks()
+        .AddNpgSql(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("Database connection string is missing."),
+            name: "postgres"
+        );
+}
+else
+{
+    builder.Services.AddHealthChecks();
+}
 
 builder.Services.AddScoped<JwtTokenService>();
 
@@ -122,3 +129,5 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program { }
