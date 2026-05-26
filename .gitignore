@@ -6,3 +6,5 @@
 .fake
 
 .DS_Store
+
+backend/JobTracker.Api/uploads/

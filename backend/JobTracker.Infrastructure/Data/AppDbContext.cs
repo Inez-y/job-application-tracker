@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
     public DbSet<Interview> Interviews => Set<Interview>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
+    public DbSet<Document> Documents => Set<Document>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -130,6 +131,28 @@ public class AppDbContext : DbContext
 
             entity.HasOne(x => x.JobApplication)
                 .WithMany(x => x.Reminders)
+                .HasForeignKey(x => x.JobApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Document>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.OriginalFileName)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(x => x.StoredFileName)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(x => x.ContentType)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasOne(x => x.JobApplication)
+                .WithMany(x => x.Documents)
                 .HasForeignKey(x => x.JobApplicationId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
