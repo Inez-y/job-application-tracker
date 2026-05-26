@@ -33,13 +33,13 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
 if (!builder.Environment.IsEnvironment("Testing"))
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
-    {
-        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
-    });
-
     builder.Services.AddHealthChecks()
         .AddNpgSql(
             builder.Configuration.GetConnectionString("DefaultConnection")
