@@ -23,3 +23,11 @@ export async function createJobApplication(
 
     return response.data;
 }
+
+export async function getJobApplicationById(id: string): Promise<JobApplication> {
+    const response = await axiosClient.get<JobApplication>(
+        `/api/job-applications/${id}`
+    );
+
+    return response.data;
+}

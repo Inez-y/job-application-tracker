@@ -64,7 +64,7 @@ export function JobApplicationsPage() {
                 {applications.length === 0 ? (
                 <div className="rounded-2xl bg-white p-8 shadow">
                     <p className="text-slate-600">
-                    No job applications yet. Create one from Swagger or add a frontend form next.
+                        No job applications yet. Create one from Swagger or add a frontend form next.
                     </p>
                 </div>
                 ) : (
@@ -83,28 +83,32 @@ export function JobApplicationsPage() {
                         <tbody>
                             {applications.map((application) => (
                             <tr key={application.id} className="border-b border-slate-200">
-                                <td className="px-4 py-3 font-medium">
-                                {application.companyName}
-                                </td>
-                                
-                                <td className="px-4 py-3">{application.jobTitle}</td>
-                                
+                                <td className="px-4 py-3 font-medium"> 
+                                    <Link
+                                        to={`/applications/${application.id}`}
+                                        className="hover:underline"
+                                    >
+                                        {application.companyName}
+                                    </Link>
+                                </td>      
+                                <td className="px-4 py-3">   
+                                    <Link
+                                        to={`/applications/${application.id}`}
+                                        className="hover:underline"
+                                    > {application.jobTitle}
+                                    </Link> 
+                                </td>                             
+                                <td className="px-4 py-3"> {application.location ?? "-"} </td>                               
+                                <td className="px-4 py-3"> {statusLabels[application.status]} </td>
                                 <td className="px-4 py-3">
-                                {application.location ?? "-"}
-                                </td>
-                                
-                                <td className="px-4 py-3">
-                                {statusLabels[application.status]}
-                                </td>
-                                
-                                <td className="px-4 py-3">
-                                {application.deadline
-                                    ? new Date(application.deadline).toLocaleDateString()
-                                    : "-"}
+                                    {application.deadline
+                                        ? new Date(application.deadline).toLocaleDateString()
+                                        : "-"}
                                 </td>
                             </tr>
                             ))}
                         </tbody>
+
                     </table>
                 </div>
                 )}
