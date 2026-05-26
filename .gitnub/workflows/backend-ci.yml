@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - main
-      - develop
+      - dev
+      - backend
+      - frontend
   pull_request:
     branches:
       - main
-      - develop
+      - dev
+      - backend
+      - frontend
 
 jobs:
   build-and-test:
@@ -34,5 +38,11 @@ jobs:
       - name: Build
         run: dotnet build JobTracker.sln --configuration Release --no-restore
 
-      - name: Test
-        run: dotnet test JobTracker.sln --configuration Release --no-build --verbosity normal
+      - name: Test with coverage
+        run: dotnet test JobTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-code-coverage
+          path: backend/JobTracker.Tests/TestResults/**/coverage.cobertura.xml
