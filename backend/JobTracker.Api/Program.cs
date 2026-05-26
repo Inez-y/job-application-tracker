@@ -9,8 +9,21 @@ using Microsoft.OpenApi.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using JobTracker.Api.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File(
+            "logs/jobtracker-.log",
+            rollingInterval: RollingInterval.Day
+        );
+});
 
 builder.Services.AddControllers();
 
@@ -86,6 +99,8 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseSerilogRequestLogging();
 
 app.UseSwagger();
 app.UseSwaggerUI();

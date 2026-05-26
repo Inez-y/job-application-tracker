@@ -15,11 +15,16 @@ public class AuthController : ControllerBase
     private readonly AppDbContext _dbContext;
     private readonly PasswordHasher<User> _passwordHasher;
     private readonly JwtTokenService _jwtTokenService;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(AppDbContext dbContext, JwtTokenService jwtTokenService)
+    public AuthController(
+        AppDbContext dbContext,
+        JwtTokenService jwtTokenService,
+        ILogger<AuthController> logger)
     {
         _dbContext = dbContext;
         _jwtTokenService = jwtTokenService;
+        _logger = logger;
         _passwordHasher = new PasswordHasher<User>();
     }
 
@@ -51,6 +56,8 @@ public class AuthController : ControllerBase
         _dbContext.Users.Add(user);
         await _dbContext.SaveChangesAsync();
 
+        _logger.LogInformation("User registered with email {Email}", user.Email);
+
         return Ok(new AuthResponse {
             AccessToken = _jwtTokenService.CreateToken(user),
             RefreshToken = refreshToken,
@@ -78,6 +85,8 @@ public class AuthController : ControllerBase
         );
         if (result == PasswordVerificationResult.Failed)
         {
+            _logger.LogWarning("Failed login attempt for email {Email}", email);
+            
             return Unauthorized("Invalide email or password.");
         }
 
@@ -85,6 +94,8 @@ public class AuthController : ControllerBase
         user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(7);
 
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("User logged in with email {Email}", user.Email);
 
         return Ok(new AuthResponse
         {
