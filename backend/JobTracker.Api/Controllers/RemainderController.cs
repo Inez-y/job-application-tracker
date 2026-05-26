@@ -144,4 +144,59 @@ public class RemindersController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPatch("{reminderId:guid}/complete")]
+    public async Task<ActionResult<ReminderResponse>> MarkComplete(
+        Guid jobApplicationId,
+        Guid reminderId)
+    {
+        var userId = GetCurrentUserId();
+
+        var reminder = await _dbContext.Reminders
+        .Include(x => x.JobApplication)
+        .FirstOrDefaultAsync(x =>
+            x.Id == reminderId &&
+            x.JobApplicationId == jobApplicationId &&
+            x.JobApplication != null &&
+            x.JobApplication.UserId == userId);
+
+        if (reminder is null)
+        {
+            return NotFound();
+        }
+
+        reminder.IsCompleted = true;
+        reminder.UpdatedAt = DateTime.UtcNow;
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(reminder.ToResponse());
+    }
+
+    [HttpPatch("{reminderId:guid}/incomplete")]
+    public async Task<ActionResult<ReminderResponse>> MarkIncomplete(
+        Guid jobApplicationId,
+        Guid reminderId)
+    {
+        var userId = GetCurrentUserId();
+
+        var reminder = await _dbContext.Reminders
+            .Include(x => x.JobApplication)
+            .FirstOrDefaultAsync(x =>
+                x.Id == reminderId &&
+                x.JobApplicationId == jobApplicationId &&
+                x.JobApplication != null &&
+                x.JobApplication.UserId == userId);
+
+        if (reminder is null)
+        {
+            return NotFound();
+        }
+
+        reminder.IsCompleted = false;
+        reminder.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(reminder.ToResponse());
+    }
 }
