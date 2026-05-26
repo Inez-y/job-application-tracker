@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { getJobApplications } from "../api/jobApplicationsApi";
 
 const statusLabels: Record<number, string> = {
@@ -52,6 +53,13 @@ export function JobApplicationsPage() {
                         Total applications: {data?.totalCount ?? 0}
                     </p>
                 </div>
+
+                <Link
+                    to="/applications/new"
+                    className="rounded-lg bg-slate-900 px-4 py-2 text-white"
+                >
+                    Add Application
+                </Link>
 
                 {applications.length === 0 ? (
                 <div className="rounded-2xl bg-white p-8 shadow">
