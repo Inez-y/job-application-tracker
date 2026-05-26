@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using JobTracker.Api.Contracts.ApplicationNotes;
 using JobTracker.Api.Mappers;
+using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -15,27 +16,19 @@ namespace JobTracker.Api.Controllers;
 public class ApplicationNotesController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
-    public ApplicationNotesController(AppDbContext dbContext)
+    private readonly ICurrentUserService _currentUserService;
+    public ApplicationNotesController(
+        AppDbContext dbContext,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<ApplicationNote>>> GetNotes(Guid jobApplicationId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -58,7 +51,7 @@ public class ApplicationNotesController : ControllerBase
         Guid jobApplicationId,
         CreateApplicationNoteRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -87,7 +80,7 @@ public class ApplicationNotesController : ControllerBase
         Guid jobApplicationId,
         Guid noteId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var note = await _dbContext.ApplicationNotes
             .Include(x => x.JobApplication)

@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using JobTracker.Api.Contracts.Reminders;
 using JobTracker.Api.Mappers;
+using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -15,28 +16,20 @@ namespace JobTracker.Api.Controllers;
 public class RemindersController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    public RemindersController(AppDbContext dbContext)
+    public RemindersController(
+        AppDbContext dbContext,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
     public async Task<ActionResult<List<ReminderResponse>>> GetReminders(Guid jobApplicationId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -59,7 +52,7 @@ public class RemindersController : ControllerBase
         Guid jobApplicationId,
         CreateReminderRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -93,7 +86,7 @@ public class RemindersController : ControllerBase
         Guid reminderId,
         UpdateReminderRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var reminder = await _dbContext.Reminders
             .Include(x => x.JobApplication)
@@ -124,7 +117,7 @@ public class RemindersController : ControllerBase
         Guid jobApplicationId,
         Guid reminderId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var reminder = await _dbContext.Reminders
             .Include(x => x.JobApplication)
@@ -150,7 +143,7 @@ public class RemindersController : ControllerBase
         Guid jobApplicationId,
         Guid reminderId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var reminder = await _dbContext.Reminders
         .Include(x => x.JobApplication)
@@ -177,7 +170,7 @@ public class RemindersController : ControllerBase
         Guid jobApplicationId,
         Guid reminderId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var reminder = await _dbContext.Reminders
             .Include(x => x.JobApplication)

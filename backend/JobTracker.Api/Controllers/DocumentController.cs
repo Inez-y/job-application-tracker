@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using JobTracker.Api.Mappers;
+using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -15,29 +16,22 @@ public class DocumentsController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
     private readonly IWebHostEnvironment _environment;
+    private readonly ICurrentUserService _currentUserService;
 
-    public DocumentsController(AppDbContext dbContext, IWebHostEnvironment environment)
+    public DocumentsController(
+        AppDbContext dbContext, 
+        IWebHostEnvironment environment,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
         _environment = environment;
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetDocuments(Guid jobApplicationId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -62,7 +56,7 @@ public class DocumentsController : ControllerBase
         IFormFile file,
         [FromForm] DocumentType type)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == jobApplicationId && x.UserId == userId);
@@ -130,7 +124,7 @@ public class DocumentsController : ControllerBase
         Guid jobApplicationId,
         Guid documentId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var document = await _dbContext.Documents
             .Include(x => x.JobApplication)
@@ -168,7 +162,7 @@ public class DocumentsController : ControllerBase
         Guid jobApplicationId,
         Guid documentId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var document = await _dbContext.Documents
             .Include(x => x.JobApplication)

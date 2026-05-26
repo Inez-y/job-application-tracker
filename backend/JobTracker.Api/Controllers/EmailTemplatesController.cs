@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using JobTracker.Api.Contracts.EmailTemplates;
 using JobTracker.Api.Mappers;
+using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -15,22 +16,14 @@ namespace JobTracker.Api.Controllers;
 public class EmailTemplatesController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUserService;
     
-    public EmailTemplatesController(AppDbContext dbContext)
+    public EmailTemplatesController(
+        AppDbContext dbContext,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
+        _currentUserService = currentUserService;
     }
 
     private static string ApplyPlaceholders(string text, JobApplication application)
@@ -46,7 +39,7 @@ public class EmailTemplatesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<EmailTemplateResponse>>> GetTemplates()
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
         var templates = await _dbContext.EmailTemplates
             .Where(x => x.UserId == userId)
             .OrderBy(x => x.Name)
@@ -58,7 +51,7 @@ public class EmailTemplatesController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<EmailTemplateResponse>> GetTemplate(Guid id)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var template = await _dbContext.EmailTemplates
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -75,7 +68,7 @@ public class EmailTemplatesController : ControllerBase
     public async Task<ActionResult<EmailTemplateResponse>> CreateTemplate(
         CreateEmailTemplateRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var template = new EmailTemplate
         {
@@ -104,7 +97,7 @@ public class EmailTemplatesController : ControllerBase
         Guid id,
         UpdateEmailTemplateRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
         
         var template = await _dbContext.EmailTemplates
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -128,7 +121,7 @@ public class EmailTemplatesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteTemplate(Guid id)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var template = await _dbContext.EmailTemplates
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -149,7 +142,7 @@ public class EmailTemplatesController : ControllerBase
         Guid templateId,
         Guid jobApplicationId)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var template = await _dbContext.EmailTemplates
             .FirstOrDefaultAsync(x => x.Id == templateId && x.UserId == userId);

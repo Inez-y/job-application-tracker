@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using JobTracker.Api.Contracts.Dashboard;
+using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -14,28 +15,21 @@ namespace JobTracker.Api.Controllers;
 public class DashboardController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
+private readonly ICurrentUserService _currentUserService;
 
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
-    }
-
-    public DashboardController(AppDbContext dbContext)
+    public DashboardController(
+        AppDbContext dbContext,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet("stats")]
     public async Task<ActionResult<DashboardStatsResponse>> GetStats()
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var applications = _dbContext.JobApplications
             .Where(x => x.UserId == userId);

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using JobTracker.Api.Mappers;
 using JobTracker.Api.Contracts.Common;
+using JobTracker.Api.Services;
 
 namespace JobTracker.Api.Controllers;
 
@@ -16,29 +17,21 @@ namespace JobTracker.Api.Controllers;
 public class JobApplicationsController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
+    private readonly ICurrentUserService _currentUserService;
 
-    private Guid GetCurrentUserId()
-    {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrWhiteSpace(userIdValue))
-        {
-            throw new UnauthorizedAccessException("User ID claim is missing.");
-        }
-
-        return Guid.Parse(userIdValue);
-    }
-
-    public JobApplicationsController(AppDbContext dbContext)
+    public JobApplicationsController(
+        AppDbContext dbContext,
+        ICurrentUserService currentUserService)
     {
         _dbContext = dbContext;
+        _currentUserService = currentUserService;
     }
 
     [HttpGet]
     public async Task<ActionResult<PagedResponse<JobApplicationResponse>>> GetAll(
         [FromQuery] GetJobApplicationsQuery query)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var applicationsQuery = _dbContext.JobApplications
             .Where(x => x.UserId == userId)
@@ -118,7 +111,7 @@ public class JobApplicationsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<JobApplicationResponse>> Create(CreateJobApplicationRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var application = new JobApplication
         {
@@ -150,7 +143,7 @@ public class JobApplicationsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<JobApplicationResponse>> GetById(Guid id)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
         
         var application = await _dbContext.JobApplications
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -168,7 +161,7 @@ public class JobApplicationsController : ControllerBase
         Guid id,
         UpdateJobApplicationRequest request)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var application = await _dbContext.JobApplications
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -213,7 +206,7 @@ public class JobApplicationsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var application = await _dbContext.JobApplications
             .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
@@ -232,7 +225,7 @@ public class JobApplicationsController : ControllerBase
     [HttpGet("{id:guid}/status-history")]
     public async Task<ActionResult<List<ApplicationStatusHistory>>> GetStatusHistory(Guid id)
     {
-        var userId = GetCurrentUserId();
+        var userId = _currentUserService.UserId;
 
         var jobExists = await _dbContext.JobApplications
             .AnyAsync(x => x.Id == id && x.UserId == userId);
