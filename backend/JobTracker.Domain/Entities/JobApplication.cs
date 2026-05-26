@@ -18,6 +18,7 @@ public class JobApplication
     public ApplicationStatus Status { get; set; } = ApplicationStatus.Wishlist;
     public List<ApplicationNote> ApplicationNotes { get; set; } = new();
     public List<ApplicationStatusHistory> StatusHistory { get; set; } = new();
+    public List<Reminder> Reminders { get; set; } = new();
 
     public DateTime? DateApplied { get; set; }
 

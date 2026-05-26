@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<ApplicationNote> ApplicationNotes => Set<ApplicationNote>();
     public DbSet<ApplicationStatusHistory> ApplicationStatusHistories => Set<ApplicationStatusHistory>();
     public DbSet<Interview> Interviews => Set<Interview>();
+    public DbSet<Reminder> Reminders => Set<Reminder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -119,5 +120,18 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
     
+        modelBuilder.Entity<Reminder>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Title)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.HasOne(x => x.JobApplication)
+                .WithMany(x => x.Reminders)
+                .HasForeignKey(x => x.JobApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
