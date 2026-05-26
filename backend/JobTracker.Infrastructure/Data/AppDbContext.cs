@@ -17,6 +17,7 @@ public class AppDbContext : DbContext
     public DbSet<Interview> Interviews => Set<Interview>();
     public DbSet<Reminder> Reminders => Set<Reminder>();
     public DbSet<Document> Documents => Set<Document>();
+    public DbSet<EmailTemplate> EmailTemplates => Set<EmailTemplate>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -154,6 +155,28 @@ public class AppDbContext : DbContext
             entity.HasOne(x => x.JobApplication)
                 .WithMany(x => x.Documents)
                 .HasForeignKey(x => x.JobApplicationId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+    
+        modelBuilder.Entity<EmailTemplate>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(x => x.Subject)
+                .IsRequired()
+                .HasMaxLength(300);
+
+            entity.Property(x => x.Body)
+                .IsRequired()
+                .HasMaxLength(10000);
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.EmailTemplates)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
