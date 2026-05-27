@@ -3,6 +3,7 @@ import type {
   CreateJobApplicationRequest,
   JobApplication,
   PagedResponse,
+  UpdateJobApplicationRequest,
 } from "../types/jobApplication";
 
 export async function getJobApplications(): Promise<PagedResponse<JobApplication>> {
@@ -30,4 +31,20 @@ export async function getJobApplicationById(id: string): Promise<JobApplication>
     );
 
     return response.data;
+}
+
+export async function updateJobApplication(
+    id: string, 
+    request: UpdateJobApplicationRequest
+): Promise<JobApplication> {
+    const response = await axiosClient.put<JobApplication>(
+        `api/job-applications/${id}`,
+        request
+    );
+
+    return response.data;
+}
+
+export async function deleteJobApplication(id: string): Promise<void> {
+    await axiosClient.delete(`api/job-applications/${id}`);
 }

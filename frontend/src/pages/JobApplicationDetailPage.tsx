@@ -44,6 +44,13 @@ export function JobApplicationDetailPage() {
                     Back to applications
                 </Link>
 
+                  <Link
+                    to={`/applications/${data.id}/edit`}
+                    className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white"
+                >
+                    Edit
+                </Link>
+
                 <div className="mt-6">
                     <h1 className="text-3xl font-bold text-slate-900">
                         {data.jobTitle}

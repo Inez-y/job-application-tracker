@@ -34,6 +34,18 @@ export type CreateJobApplicationRequest = {
   notes?: string | null;
 };
 
+export type UpdateJobApplicationRequest = {
+  companyName: string;
+  jobTitle: string;
+  location?: string | null;
+  jobUrl?: string | null;
+  status: ApplicationStatus;
+  dateApplied?: string | null;
+  deadline?: string | null;
+  salaryRange?: string | null;
+  notes?: string | null;
+};
+
 export type PagedResponse<T> = {
   items: T[];
   page: number;
