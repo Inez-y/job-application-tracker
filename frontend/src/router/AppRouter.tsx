@@ -7,12 +7,14 @@ import { JobApplicationsPage } from "../pages/JobApplicationsPage";
 import { CreateJobApplicationPage } from "../pages/CreateJobApplicationPage";
 import { JobApplicationDetailPage } from "../pages/JobApplicationDetailPage";
 import { EditJobApplicationPage } from "../pages/EditJobApplicationPage";
+import { RegisterPage } from "../pages/RegisterPage";
 
 export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         
         <Route element={<ProtectedRoute />}>

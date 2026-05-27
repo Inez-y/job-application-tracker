@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
 import { login } from "../api/authApi";
 
 const loginSchema = z.object({
@@ -108,6 +108,13 @@ export function LoginPage() {
                         {isSubmitting ? "Signing in..." : "Sign in"}
                     </button>
                 </form>
+
+                <p className="mt-6 text-center text-sm text-slate-600">
+                    Don&apos;t have an account?{" "}
+                    <Link to="/register" className="font-medium text-slate-900 underline">
+                        Create one
+                    </Link>
+                </p>
             </section>
         </main>
     );
