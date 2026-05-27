@@ -5,6 +5,7 @@ import {
   getStatusHistory,
 } from "../api/jobApplicationsApi";
 import { ApplicationNotesSection } from "../features/jobApplications/ApplicationNotesSection";
+import { InterviewsSection } from "../features/jobApplications/InterviewsSection";
 
 
 const statusLabels: Record<number, string> = {
@@ -161,6 +162,7 @@ export function JobApplicationDetailPage() {
                 </div>
                 
                 <ApplicationNotesSection jobApplicationId={data.id} />
+                <InterviewsSection jobApplicationId={data.id} />
             </div>
         </main>
     );
