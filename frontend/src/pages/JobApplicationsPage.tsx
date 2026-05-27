@@ -54,6 +54,10 @@ export function JobApplicationsPage() {
                     </p>
                 </div>
 
+                <Link to="/dashboard" className="text-slate-700 underline">
+                    Dashboard
+                </Link>
+                
                 <Link
                     to="/applications/new"
                     className="rounded-lg bg-slate-900 px-4 py-2 text-white"

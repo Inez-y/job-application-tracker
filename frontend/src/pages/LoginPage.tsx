@@ -35,7 +35,7 @@ export function LoginPage() {
             localStorage.setItem("userEmail", response.email);
             localStorage.setItem("userId", response.userId);
 
-            navigate("/applications");
+            navigate("/dashboard");
         } catch {
             setServerError("Invalid email or password");
         }
