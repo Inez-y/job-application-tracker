@@ -4,6 +4,8 @@ import {
   getJobApplicationById,
   getStatusHistory,
 } from "../api/jobApplicationsApi";
+import { ApplicationNotesSection } from "../features/jobApplications/ApplicationNotesSection";
+
 
 const statusLabels: Record<number, string> = {
   0: "Wishlist",
@@ -156,7 +158,9 @@ export function JobApplicationDetailPage() {
                         ))}
                         </div>
                     )}
-                    </div>
+                </div>
+                
+                <ApplicationNotesSection jobApplicationId={data.id} />
             </div>
         </main>
     );
