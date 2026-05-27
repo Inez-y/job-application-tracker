@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +15,14 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export function LoginPage() {
     const navigate = useNavigate();
     const [serverError, setServerError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const existingToken = localStorage.getItem("accessToken");
+
+        if (existingToken) {
+            navigate("/dashboard", { replace: true });
+        }
+    }, [navigate]);
 
     const {
         register,
@@ -35,7 +43,7 @@ export function LoginPage() {
             localStorage.setItem("userEmail", response.email);
             localStorage.setItem("userId", response.userId);
 
-            navigate("/dashboard");
+            navigate("/dashboard", { replace: true });
         } catch {
             setServerError("Invalid email or password");
         }
@@ -54,7 +62,7 @@ export function LoginPage() {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-slage-700">
+                        <label className="block text-sm font-medium text-slate-700">
                             Email
                         </label>
                         <input 
