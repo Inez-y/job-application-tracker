@@ -1,6 +1,9 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { getJobApplicationById } from "../api/jobApplicationsApi";
+import {
+  getJobApplicationById,
+  getStatusHistory,
+} from "../api/jobApplicationsApi";
 
 const statusLabels: Record<number, string> = {
   0: "Wishlist",
@@ -18,6 +21,15 @@ export function JobApplicationDetailPage() {
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobApplication", id],
         queryFn: () => getJobApplicationById(id!),
+        enabled: Boolean(id),
+    });
+
+    const {
+        data: statusHistory,
+        isLoading: isStatusHistoryLoading,
+        } = useQuery({
+        queryKey: ["statusHistory", id],
+        queryFn: () => getStatusHistory(id!),
         enabled: Boolean(id),
     });
 
@@ -119,6 +131,32 @@ export function JobApplicationDetailPage() {
                             {data.notes || "No notes yet."}
                         </p>
                 </div>
+
+                <div className="mt-8">
+                    <h2 className="text-lg font-semibold text-slate-900"> Status History </h2>
+
+                    {isStatusHistoryLoading ? (
+                        <p className="mt-2 text-slate-600"> Loading status history... </p>
+                    ) : !statusHistory || statusHistory.length === 0 ? (
+                        <p className="mt-2 text-slate-600"> No status changes yet. </p>
+                    ) : (
+                        <div className="mt-4 space-y-3">
+                        {statusHistory.map((item) => (
+                            <div
+                                key={item.id}
+                                className="rounded-lg border border-slate-200 bg-slate-50 p-4"
+                            >
+                                <p className="font-medium text-slate-900">
+                                    {statusLabels[item.oldStatus]} → {statusLabels[item.newStatus]}
+                                </p>
+                                <p className="mt-1 text-sm text-slate-600">
+                                    {new Date(item.changedAt).toLocaleString()}
+                                </p>
+                            </div>
+                        ))}
+                        </div>
+                    )}
+                    </div>
             </div>
         </main>
     );

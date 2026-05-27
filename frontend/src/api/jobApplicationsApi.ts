@@ -1,5 +1,6 @@
 import { axiosClient } from "./axiosClient";
 import type {
+  ApplicationStatusHistory,
   CreateJobApplicationRequest,
   JobApplication,
   PagedResponse,
@@ -47,4 +48,12 @@ export async function updateJobApplication(
 
 export async function deleteJobApplication(id: string): Promise<void> {
     await axiosClient.delete(`api/job-applications/${id}`);
+}
+
+export async function getStatusHistory(jobApplicationId: string): Promise<ApplicationStatusHistory[]> {
+    const response = await axiosClient.get<ApplicationStatusHistory[]>(
+        `/api/job-applications/${jobApplicationId}/status-history`
+    );
+    
+    return response.data;
 }

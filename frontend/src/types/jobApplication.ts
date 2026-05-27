@@ -1,3 +1,11 @@
+export type PagedResponse<T> = {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};
+
 export type ApplicationStatus =
   | 0 // Wishlist
   | 1 // Applied
@@ -46,10 +54,10 @@ export type UpdateJobApplicationRequest = {
   notes?: string | null;
 };
 
-export type PagedResponse<T> = {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  totalPages: number;
+export type ApplicationStatusHistory = {
+  id: string;
+  jobApplicationId: string;
+  oldStatus: ApplicationStatus;
+  newStatus: ApplicationStatus;
+  changedAt: string;
 };
