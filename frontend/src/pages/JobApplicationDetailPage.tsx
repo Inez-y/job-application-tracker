@@ -6,7 +6,7 @@ import {
 } from "../api/jobApplicationsApi";
 import { ApplicationNotesSection } from "../features/jobApplications/ApplicationNotesSection";
 import { InterviewsSection } from "../features/jobApplications/InterviewsSection";
-
+import { RemindersSection } from "../features/jobApplications/RemindersSection";
 
 const statusLabels: Record<number, string> = {
   0: "Wishlist",
@@ -163,6 +163,7 @@ export function JobApplicationDetailPage() {
                 
                 <ApplicationNotesSection jobApplicationId={data.id} />
                 <InterviewsSection jobApplicationId={data.id} />
+                <RemindersSection jobApplicationId={data.id} />
             </div>
         </main>
     );
