@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
 import { getDashboardStats, getUpcomingReminders } from "../api/dashboardApi";
 
 const statusLabels: Record<string, string> = {
@@ -68,39 +70,36 @@ export function DashboardPage() {
             </p>
           </div>
 
-          <Link
-            to="/applications/new"
-            className="rounded-lg bg-slate-900 px-4 py-2 text-white"
-          >
-            Add Application
+          <Link to="/applications/new">
+            <Button type="button">Add Application</Button>
           </Link>
         </div>
 
         <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-6 shadow">
-            <p className="text-sm text-slate-500"> Total Applications </p>
+          <Card>
+            <p className="text-sm text-slate-500">Total Applications</p>
             <p className="mt-2 text-3xl font-bold text-slate-900">
               {stats.totalApplications}
             </p>
-          </div>
+          </Card>
 
-          <div className="rounded-2xl bg-white p-6 shadow">
-            <p className="text-sm text-slate-500"> Upcoming Deadlines </p>
+          <Card>
+            <p className="text-sm text-slate-500">Upcoming Deadlines</p>
             <p className="mt-2 text-3xl font-bold text-slate-900">
               {stats.upcomingDeadlineCount}
             </p>
-          </div>
+          </Card>
 
-          <div className="rounded-2xl bg-white p-6 shadow">
-            <p className="text-sm text-slate-500"> Upcoming Reminders </p>
+          <Card>
+            <p className="text-sm text-slate-500">Upcoming Reminders</p>
             <p className="mt-2 text-3xl font-bold text-slate-900">
               {reminders?.length ?? 0}
             </p>
-          </div>
+          </Card>
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <Card>
             <h2 className="text-lg font-semibold text-slate-900">
               Applications by Status
             </h2>
@@ -111,20 +110,20 @@ export function DashboardPage() {
                   key={key}
                   className="flex items-center justify-between border-b border-slate-100 pb-2"
                 >
-                  <span className="text-slate-700"> {statusLabels[key]} </span>
-                  <span className="font-semibold text-slate-900"> {count} </span>
+                  <span className="text-slate-700">{statusLabels[key]}</span>
+                  <span className="font-semibold text-slate-900">{count}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <Card>
             <h2 className="text-lg font-semibold text-slate-900">
               Recent Applications
             </h2>
 
             {stats.recentApplications.length === 0 ? (
-              <p className="mt-4 text-slate-600"> No recent applications. </p>
+              <p className="mt-4 text-slate-600">No recent applications.</p>
             ) : (
               <div className="mt-4 space-y-3">
                 {stats.recentApplications.map((application) => (
@@ -143,11 +142,11 @@ export function DashboardPage() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <Card>
             <h2 className="text-lg font-semibold text-slate-900">
               Upcoming Deadlines
             </h2>
@@ -178,9 +177,9 @@ export function DashboardPage() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
 
-          <div className="rounded-2xl bg-white p-6 shadow">
+          <Card>
             <h2 className="text-lg font-semibold text-slate-900">
               Upcoming Reminders
             </h2>
@@ -208,12 +207,14 @@ export function DashboardPage() {
                 ))}
               </div>
             )}
-          </div>
+          </Card>
         </section>
 
         <div className="mt-6">
-          <Link to="/applications" className="text-slate-700 underline">
-            View all applications
+          <Link to="/applications">
+            <Button type="button" variant="secondary">
+              View all applications
+            </Button>
           </Link>
         </div>
       </div>

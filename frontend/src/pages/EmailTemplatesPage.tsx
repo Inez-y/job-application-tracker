@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
 import {
     createEmailTemplate,
     deleteEmailTemplate,
@@ -60,120 +62,127 @@ export function EmailTemplatesPage() {
 
     return (
     <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-6xl">
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold text-slate-900">
-                    Email Templates
-                </h1>
-                <p className="mt-2 text-slate-600">
-                    Create reusable follow-up, thank-you, and recruiter outreach templates.
-                </p>
+        <div className="mx-auto max-w-6xl space-y-6">
+        <div>
+            <h1 className="text-3xl font-bold text-slate-900">
+            Email Templates
+            </h1>
+            <p className="mt-2 text-slate-600">
+            Create reusable follow-up, thank-you, and recruiter outreach templates.
+            </p>
+        </div>
+
+        <Card>
+            <h2 className="text-lg font-semibold text-slate-900">
+            Create Template
+            </h2>
+
+            <form
+            onSubmit={(event) => {
+                event.preventDefault();
+
+                if (!name.trim() || !subject.trim() || !body.trim()) {
+                return;
+                }
+
+                createMutation.mutate();
+            }}
+            className="mt-4 space-y-4"
+            >
+            <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                <label className="block text-sm font-medium text-slate-700">
+                    Template Name
+                </label>
+                <input
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+                    placeholder="Follow-up after application"
+                />
+                </div>
+
+                <div>
+                <label className="block text-sm font-medium text-slate-700">
+                    Type
+                </label>
+                <select
+                    value={type}
+                    onChange={(event) =>
+                    setType(Number(event.target.value) as EmailTemplateType)
+                    }
+                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+                >
+                    <option value={0}>Follow Up</option>
+                    <option value={1}>Thank You</option>
+                    <option value={2}>Recruiter Outreach</option>
+                    <option value={3}>Interview Confirmation</option>
+                    <option value={4}>Withdrawal</option>
+                    <option value={5}>Other</option>
+                </select>
+                </div>
             </div>
 
-            <section className="rounded-2xl bg-white p-6 shadow">
-                <h2 className="text-lg font-semibold text-slate-900">
-                    Create Template
-                </h2>
+            <div>
+                <label className="block text-sm font-medium text-slate-700">
+                Subject
+                </label>
+                <input
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+                placeholder="Following up on my {{JobTitle}} application"
+                />
+            </div>
 
-                <form
-                onSubmit={(event) => {
-                    event.preventDefault();
+            <div>
+                <label className="block text-sm font-medium text-slate-700">
+                Body
+                </label>
+                <textarea
+                value={body}
+                onChange={(event) => setBody(event.target.value)}
+                className="mt-1 min-h-36 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+                placeholder="Hi, I wanted to follow up on my application for the {{JobTitle}} position at {{CompanyName}}."
+                />
+            </div>
 
-                    if (!name.trim() || !subject.trim() || !body.trim()) {
-                        return;
-                    }
+            <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
+                Supported placeholders:{" "}
+                <code>{"{{CompanyName}}"}</code>, <code>{"{{JobTitle}}"}</code>,{" "}
+                <code>{"{{Location}}"}</code>, <code>{"{{DateApplied}}"}</code>,{" "}
+                <code>{"{{Deadline}}"}</code>
+            </div>
 
-                    createMutation.mutate();
-                }}
-                className="mt-4 space-y-4"
-                >
-                <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                    <label className="block text-sm font-medium"> Template Name </label>
-                    <input
-                        value={name}
-                        onChange={(event) => setName(event.target.value)}
-                        className="mt-1 w-full rounded-lg border px-3 py-2"
-                        placeholder="Follow-up after application"
-                    />
-                    </div>
+            <Button
+                type="submit"
+                disabled={
+                createMutation.isPending ||
+                !name.trim() ||
+                !subject.trim() ||
+                !body.trim()
+                }
+            >
+                {createMutation.isPending ? "Creating..." : "Create Template"}
+            </Button>
+            </form>
+        </Card>
 
-                    <div>
-                        <label className="block text-sm font-medium"> Type </label>
-                        <select
-                            value={type}
-                            onChange={(event) =>
-                            setType(Number(event.target.value) as EmailTemplateType)
-                            }
-                            className="mt-1 w-full rounded-lg border px-3 py-2"
-                        >
-                            <option value={0}> Follow Up </option>
-                            <option value={1}> Thank You </option>
-                            <option value={2}> Recruiter Outreach </option>
-                            <option value={3}> Interview Confirmation </option>
-                            <option value={4}> Withdrawal </option>
-                            <option value={5}> Other </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium"> Subject </label>
-                    <input
-                    value={subject}
-                    onChange={(event) => setSubject(event.target.value)}
-                    className="mt-1 w-full rounded-lg border px-3 py-2"
-                    placeholder="Following up on my {{JobTitle}} application"
-                    />
-                </div>
-
-                <div>
-                    <label className="block text-sm font-medium"> Body </label>
-                    <textarea
-                    value={body}
-                    onChange={(event) => setBody(event.target.value)}
-                    className="mt-1 min-h-36 w-full rounded-lg border px-3 py-2"
-                    placeholder="Hi, I wanted to follow up on my application for the {{JobTitle}} position at {{CompanyName}}."
-                    />
-                </div>
-
-                <div className="rounded-lg bg-slate-50 p-4 text-sm text-slate-600">
-                    Supported placeholders:{" "}
-                    <code>{"{{CompanyName}}"}</code>, <code>{"{{JobTitle}}"}</code>,{" "}
-                    <code>{"{{Location}}"}</code>, <code>{"{{DateApplied}}"}</code>,{" "}
-                    <code>{"{{Deadline}}"}</code>
-                </div>
-
-                <button
-                    type="submit"
-                    disabled={
-                    createMutation.isPending ||
-                    !name.trim() ||
-                    !subject.trim() ||
-                    !body.trim()
-                    }
-                    className="rounded-lg bg-slate-900 px-4 py-2 text-white disabled:opacity-60"
-                >
-                    {createMutation.isPending ? "Creating..." : "Create Template"}
-                </button>
-                </form>
-            </section>
-
-        <section className="mt-6 rounded-2xl bg-white p-6 shadow">
+        <Card>
             <h2 className="text-lg font-semibold text-slate-900">
             Saved Templates
             </h2>
 
             {isLoading && (
-            <p className="mt-4 text-slate-600"> Loading templates... </p>
+            <p className="mt-4 text-slate-600">Loading templates...</p>
             )}
 
             {isError && (
-            <p className="mt-4 text-red-600"> Failed to load templates. </p>
+            <p className="mt-4 text-red-600">Failed to load templates.</p>
             )}
 
             {!isLoading && !isError && (!data || data.length === 0) && (
-            <p className="mt-4 text-slate-600"> No templates yet. </p>
+            <p className="mt-4 text-slate-600">No templates yet.</p>
             )}
 
             {data && data.length > 0 && (
@@ -181,7 +190,7 @@ export function EmailTemplatesPage() {
                 {data.map((template) => (
                 <div
                     key={template.id}
-                    className="rounded-lg border border-slate-200 p-4"
+                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                 >
                     <div className="flex items-start justify-between gap-4">
                     <div>
@@ -196,26 +205,26 @@ export function EmailTemplatesPage() {
                         <p className="mt-3 font-medium text-slate-800">
                         {template.subject}
                         </p>
-                        
+
                         <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
                         {template.body}
                         </p>
                     </div>
 
-                    <button
+                    <Button
                         type="button"
+                        variant="danger"
                         onClick={() => deleteMutation.mutate(template.id)}
                         disabled={deleteMutation.isPending}
-                        className="text-sm text-red-600 hover:underline disabled:opacity-60"
                     >
                         Delete
-                    </button>
+                    </Button>
                     </div>
                 </div>
                 ))}
             </div>
             )}
-        </section>
+        </Card>
         </div>
     </main>
     );
