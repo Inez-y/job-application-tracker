@@ -8,6 +8,7 @@ import { CreateJobApplicationPage } from "../pages/CreateJobApplicationPage";
 import { JobApplicationDetailPage } from "../pages/JobApplicationDetailPage";
 import { EditJobApplicationPage } from "../pages/EditJobApplicationPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { EmailTemplatesPage } from "../pages/EmailTemplatesPage";
 
 export function AppRouter() {
   return (
@@ -24,6 +25,7 @@ export function AppRouter() {
             <Route path="/applications/new" element={<CreateJobApplicationPage />} />
             <Route path="/applications/:id" element={<JobApplicationDetailPage />} />
             <Route path="/applications/:id/edit" element={<EditJobApplicationPage />} />
+            <Route path="/email-templates" element={<EmailTemplatesPage />} />
           </Route>
         </Route>
       </Routes>

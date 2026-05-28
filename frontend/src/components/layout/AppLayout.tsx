@@ -51,6 +51,17 @@ export function AppLayout() {
             >
               Applications
             </NavLink>
+
+            <NavLink
+              to="/email-templates"
+              className={({ isActive }) =>
+                isActive
+                  ? "font-medium text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            >
+              Email Templates
+            </NavLink>
           </nav>
 
           <div className="flex items-center gap-3">
