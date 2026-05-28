@@ -7,9 +7,29 @@ import type {
   UpdateJobApplicationRequest,
 } from "../types/jobApplication";
 
-export async function getJobApplications(): Promise<PagedResponse<JobApplication>> {
+export type GetJobApplicationsParams = {
+    search?: string;
+    status?: number | "";
+    sortBy?: string;
+    sortDirection?: "asc" | "desc";
+    page?: number;
+    pageSize?: number;
+};
+
+export async function getJobApplications(params: GetJobApplicationsParams = {}
+): Promise<PagedResponse<JobApplication>> {
     const response = await axiosClient.get<PagedResponse<JobApplication>>(
-        "/api/job-applications?page=1&pageSize=10"
+        "/api/job-applications",
+        {
+            params: {
+                search: params.search || undefined,
+                status: params.status === "" ? undefined : params.status,
+                sortBy: params.sortBy ?? "createdAt",
+                sortDirection: params.sortDirection ?? "desc",
+                page: params.page ?? 1,
+                pageSize: params.pageSize ?? 10,
+            },
+        }
     );
 
     return response.data;
