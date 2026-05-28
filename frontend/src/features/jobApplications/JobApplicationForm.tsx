@@ -54,11 +54,14 @@ export function JobApplicationForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label 
+        htmlFor="companyName"
+        className="block text-sm font-medium text-slate-700">
           Company Name
         </label>
 
         <input
+          id="companyName"
           {...register("companyName")}
           className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
         />
@@ -71,11 +74,14 @@ export function JobApplicationForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label 
+        htmlFor="jobTitle"
+        className="block text-sm font-medium text-slate-700">
           Job Title
         </label>
 
         <input
+          id="jobTitle"
           {...register("jobTitle")}
           className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
         />
@@ -89,11 +95,14 @@ export function JobApplicationForm({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label 
+          htmlFor="location"
+          className="block text-sm font-medium text-slate-700">
             Location
           </label>
 
           <input
+            id="location"
             {...register("location")}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
             placeholder="Vancouver, Remote, etc."
@@ -101,11 +110,14 @@ export function JobApplicationForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label 
+          htmlFor="salaryRange"
+          className="block text-sm font-medium text-slate-700">
             Salary Range
           </label>
 
           <input
+            id="salaryRange"
             {...register("salaryRange")}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
             placeholder="$30-$40/hr"
@@ -114,11 +126,14 @@ export function JobApplicationForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label 
+        htmlFor="jobUrl"
+        className="block text-sm font-medium text-slate-700">
           Job URL
         </label>
 
         <input
+          id="jobUrl"
           {...register("jobUrl")}
           className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
           placeholder="https://example.com/job"
@@ -133,11 +148,14 @@ export function JobApplicationForm({
 
       <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label 
+          htmlFor="status"
+          className="block text-sm font-medium text-slate-700">
             Status
           </label>
 
           <select
+            id="status"
             {...register("status")}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
           >
@@ -152,11 +170,14 @@ export function JobApplicationForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label 
+          htmlFor="dateApplied"
+          className="block text-sm font-medium text-slate-700">
             Date Applied
           </label>
 
           <input
+            id="dateApplied"
             type="date"
             {...register("dateApplied")}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
@@ -164,11 +185,14 @@ export function JobApplicationForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700">
+          <label 
+          htmlFor="deadline"
+          className="block text-sm font-medium text-slate-700">
             Deadline
           </label>
 
           <input
+            id="deadline"
             type="date"
             {...register("deadline")}
             className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
@@ -177,11 +201,14 @@ export function JobApplicationForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">
+        <label 
+        htmlFor="notes"
+        className="block text-sm font-medium text-slate-700">
           Notes
         </label>
 
         <textarea
+          id="notes"
           {...register("notes")}
           className="mt-1 min-h-28 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
           placeholder="Add details about the application, recruiter, interview process, or follow-up plan."

@@ -23,7 +23,7 @@ export function RemindersSection({ jobApplicationId }: Props) {
     const queryClient = useQueryClient();
 
     const [title, setTitle] = useState("");
-    const [type, setType] = useState<ReminderType>();
+    const [type, setType] = useState<ReminderType>(0);
     const [remindAt, setRemindAt] = useState("");
 
     const { data, isLoading, isError } = useQuery({
