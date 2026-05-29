@@ -35,7 +35,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         {
             var testConfig = new Dictionary<string, string?>
             {
-                ["ConnectionStrings:DefaultConnection"] = _postgresContainer.GetConnectionString()
+                ["ConnectionStrings:DefaultConnection"] = _postgresContainer.GetConnectionString(),
+
+                ["Jwt:Key"] = "THIS_IS_A_LONG_TEST_SECRET_KEY_FOR_INTEGRATION_TESTS_123456789",
+                ["Jwt:Issuer"] = "JobTracker.Tests",
+                ["Jwt:Audience"] = "JobTracker.Tests"
             };
 
             configBuilder.AddInMemoryCollection(testConfig);

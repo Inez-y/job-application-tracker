@@ -11,5 +11,34 @@ services:
     volumes:
       - jobtracker_postgres_data:/var/lib/postgresql/data
 
+  api:
+    build:
+      context: ./backend
+      dockerfile: JobTracker.Api/Dockerfile
+    container_name: jobtracker-api
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=jobtracker;Username=jobtracker_user;Password=jobtracker_password
+      Jwt__Key: CHANGE_ME_TO_A_LONG_SECURE_SECRET_KEY_FOR_LOCAL_DOCKER_ONLY
+      Jwt__Issuer: JobTracker
+      Jwt__Audience: JobTrackerUsers
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    container_name: jobtracker-frontend
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
 volumes:
   jobtracker_postgres_data:

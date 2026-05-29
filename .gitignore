@@ -9,4 +9,6 @@
 
 backend/JobTracker.Api/uploads/
 backend/JobTracker.Api/logs/
+backend/JobTracker.Api/appsettings.Development.json
+backend/JobTracker.Api/appsettings.json
 backend/JobTracker.Tests/TestResults/
