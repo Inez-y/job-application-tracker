@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+**/TestResults/
+JobTracker.Api/uploads/
+JobTracker.Api/logs/
+JobTracker.Api/appsettings.Development.json
+JobTracker.Api/appsettings.json

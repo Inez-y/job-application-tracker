@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using JobTracker.Api.Contracts.JobApplications;
 using JobTracker.Domain.Entities;
 using JobTracker.Infrastructure.Data;
