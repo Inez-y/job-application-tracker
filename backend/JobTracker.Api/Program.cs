@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using JobTracker.Api.Middleware;
+using JobTracker.Api.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -121,6 +122,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    await app.ApplyMigrationsAsync();
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
