@@ -1,16 +1,30 @@
-# Job Application Tracker API (In-progress)
+# Job Application Tracker
 
-![Backend CI](https://github.com/Inez-y/job-application-tracker/actions/workflows/backend-ci.yml/badge.svg)
+![CI](https://github.com/Inez-y/job-application-tracker/actions/workflows/backend-ci.yml/badge.svg)
 
 ## Overview
 
-Job Application Tracker API is a production-style backend built with ASP.NET Core and PostgreSQL. The API helps users manage their job search process by tracking job applications, notes, status changes, interviews, reminders, documents, and reusable email templates.
+Job Application Tracker is a full-stack application for managing the job search process. Users can track job applications, statuses, notes, interviews, reminders, uploaded documents, and reusable email templates.
 
-The project focuses on backend engineering concepts commonly used in real-world applications, including authentication, authorization, relational database modeling, file handling, background-ready reminder logic, structured logging, health checks, integration testing, and CI/CD.
+The project includes a production-style ASP.NET Core backend, PostgreSQL database, React/TypeScript frontend, Docker Compose setup, integration tests, frontend tests, structured logging, health checks, and GitHub Actions CI.
 
-This backend is designed to support a future React/TypeScript frontend.
+This project was built to demonstrate real-world full-stack engineering practices, including authentication, authorization, relational database modeling, API design, frontend state management, file handling, testing, CI/CD, and containerized development.
 
 ## Tech Stack
+
+### Frontend
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- React Hook Form
+- Zod
+- Axios
+- Vitest
+- React Testing Library
 
 ### Backend
 
@@ -32,18 +46,21 @@ This backend is designed to support a future React/TypeScript frontend.
 - WebApplicationFactory
 - Testcontainers
 - PostgreSQL test container
+- Vitest
+- React Testing Library
 - Coverlet code coverage
 
 ### DevOps
 
+- Docker
 - Docker Compose
 - GitHub Actions
-- CI pipeline for restore, build, test, and coverage artifact upload
+- CI pipeline for backend and frontend build/test checks
 
 ---
 
 ## Features
-
+### Backend Features
 - JWT authentication with refresh tokens
 - Register, login, refresh token, and logout flow
 - User-scoped job application tracking
@@ -66,20 +83,46 @@ This backend is designed to support a future React/TypeScript frontend.
 - Integration tests with Testcontainers PostgreSQL
 - GitHub Actions CI with code coverage
 
+### Frontend Features
+- React frontend with protected routes
+- Login and registration UI
+- Dashboard page with job search summary
+- Job application list with search, filter, sort, and pagination
+- Create, edit, delete, and detail pages for job applications
+- Notes, interviews, reminders, documents, and email template preview UI
+- Automatic access token refresh with refresh tokens
+- Shared reusable UI components
+- Shared job application form component
+- Frontend tests with Vitest and React Testing Library
+- Full-stack Docker Compose setup
+
 ---
 
 ## Architecture
 
-The backend follows a layered project structure:
+The project is organized as a full-stack application with separate frontend and backend folders:
 
 ```text
-backend/
-  JobTracker.Api/
-  JobTracker.Application/
-  JobTracker.Domain/
-  JobTracker.Infrastructure/
-  JobTracker.Tests/
-````
+job-application-tracker/
+  frontend/
+    src/
+      api/
+      components/
+      features/
+      pages/
+      router/
+      types/
+      test/
+
+  backend/
+    JobTracker.Api/
+    JobTracker.Application/
+    JobTracker.Domain/
+    JobTracker.Infrastructure/
+    JobTracker.Tests/
+
+  docker-compose.yml
+```
 
 ### Project Responsibilities
 
@@ -137,6 +180,21 @@ Responsibilities:
 * User data isolation tests
 * Testcontainers PostgreSQL setup
 * API behavior verification
+
+#### `frontend`
+
+Contains the React/TypeScript frontend.
+
+Responsibilities:
+
+- Authentication pages
+- Protected routing
+- Dashboard UI
+- Job application CRUD UI
+- Notes, interviews, reminders, documents, and email template UI
+- API client modules
+- Shared UI components
+- Frontend tests
 
 ---
 
@@ -594,10 +652,10 @@ git clone https://github.com/Inez-y/job-application-tracker.git
 cd job-application-tracker
 ```
 
-### Start PostgreSQL
+### Start PostgreSQL for Local Development
 
 ```bash
-docker compose up -d
+docker compose up -d postgres
 ```
 
 ### Restore Packages
@@ -631,61 +689,131 @@ Example:
 http://localhost:YOUR_PORT/swagger
 ```
 
+For the frontend, see the Frontend Setup section below.
+
 ---
 
 ## Environment Configuration
 
-The API uses `appsettings.json` for local development.
+### Frontend
 
-Example:
+Create `frontend/.env`:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5433;Database=jobtracker;Username=jobtracker_user;Password=jobtracker_password"
-  },
-  "Jwt": {
-    "Key": "THIS_IS_A_DEVELOPMENT_SECRET_KEY_CHANGE_LATER_123456789",
-    "Issuer": "JobTracker",
-    "Audience": "JobTrackerUsers"
-  },
-  "AllowedHosts": "*"
-}
+```env
+VITE_API_BASE_URL=http://localhost:5187
 ```
 
-Do not use development secrets in production.
+For Docker Compose, the frontend is built with:
 
-For production, use environment variables or a secret manager.
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
 
----
+### Backend
 
-## Docker Compose
+Local backend settings can be configured with `appsettings.Development.json` or environment variables.
 
-The project uses Docker Compose to run PostgreSQL locally.
+Required backend values:
 
-Example:
+```text
+ConnectionStrings__DefaultConnection
+Jwt__Key
+Jwt__Issuer
+Jwt__Audience
+```
 
-```yaml
-services:
-  postgres:
-    image: postgres:16
-    container_name: jobtracker-postgres
-    environment:
-      POSTGRES_DB: jobtracker
-      POSTGRES_USER: jobtracker_user
-      POSTGRES_PASSWORD: jobtracker_password
-    ports:
-      - "5433:5432"
-    volumes:
-      - jobtracker_postgres_data:/var/lib/postgresql/data
+Example connection string:
 
-volumes:
-  jobtracker_postgres_data:
+```text
+Host=localhost;Port=5433;Database=jobtracker;Username=jobtracker_user;Password=jobtracker_password
 ```
 
 ---
+## Frontend Setup
+
+From the project root:
+
+```bash
+cd frontend
+npm install
+```
+
+Create a local environment file:
+
+```bash
+cp .env.example .env
+```
+
+Example:
+
+```env
+VITE_API_BASE_URL=http://localhost:5187
+```
+
+Run the frontend:
+
+```bash
+npm run dev
+```
+
+The frontend will usually run at:
+
+```text
+http://localhost:5173
+```
+
+---
+## Running with Docker Compose
+
+This project can run the full stack with Docker Compose:
+
+- PostgreSQL database
+- ASP.NET Core API
+- React frontend served with Nginx
+
+### Start the full stack
+
+From the project root:
+
+```bash
+docker compose up --build
+```
+
+### App URLs
+
+| Service | URL |
+|---|---|
+| Frontend | `http://localhost:3000` |
+| API Swagger | `http://localhost:8080/swagger` |
+| API Health Check | `http://localhost:8080/health` |
+| PostgreSQL | `localhost:5433` |
+
+### Database migrations
+
+The API automatically applies Entity Framework Core migrations on startup in the local Docker development environment.
+
+You should see logs like:
+
+```text
+Applying database migrations...
+Database migrations applied successfully.
+```
+
+### Stop containers
+
+```bash
+docker compose down
+```
+
+### Reset database volume
+
+```bash
+docker compose down -v
+```
 
 ## Running Tests
+
+### Backend Tests
 
 From the `backend` folder:
 
@@ -693,7 +821,7 @@ From the `backend` folder:
 dotnet test
 ```
 
-The test suite uses:
+The backend test suite uses:
 
 ```text
 xUnit
@@ -705,9 +833,26 @@ PostgreSQL
 
 Testcontainers automatically starts a temporary PostgreSQL container during integration tests.
 
-### Test Coverage
+### Frontend Tests
 
-Run tests with coverage:
+From the `frontend` folder:
+
+```bash
+npm run test:run
+```
+
+The frontend test suite uses:
+
+```text
+Vitest
+React Testing Library
+JSDOM
+Testing Library Jest DOM
+```
+
+### Backend Test Coverage
+
+From the `backend` folder:
 
 ```bash
 dotnet test JobTracker.sln --collect:"XPlat Code Coverage"
@@ -719,20 +864,21 @@ Coverage files are generated under:
 JobTracker.Tests/TestResults/
 ```
 
----
-
 ## CI/CD
 
-GitHub Actions runs backend CI automatically.
+GitHub Actions runs CI automatically for backend and frontend changes.
 
 The workflow performs:
 
 ```text
-Restore dependencies
-Build solution
-Run tests
-Collect code coverage
-Upload coverage artifact
+Restore backend dependencies
+Build backend
+Run backend tests
+Collect backend code coverage
+Install frontend dependencies
+Build frontend
+Run frontend tests
+Upload coverage artifacts
 ```
 
 Workflow file:
@@ -873,7 +1019,8 @@ This avoids revealing whether another user’s resource exists.
 Current status:
 
 ```text
-Backend API: In progress / functional
+Backend API: Functional
+Frontend: Functional
 Authentication: Complete
 Job application CRUD: Complete
 Notes: Complete
@@ -883,28 +1030,27 @@ Reminders: Complete
 Documents: Complete
 Email templates: Complete
 Dashboard stats: Complete
-Tests: In progress / integration tests added
+Backend tests: Added
+Frontend tests: Added
 CI: Added
-Frontend: Not started
+Docker Compose: Added
+Deployment: In progress / planned
 ```
 
 ---
-
 ## Future Improvements
 
 Planned improvements:
 
 ```text
-Build React + TypeScript frontend
-Add role-based authorization
+Deploy backend and frontend
+Add production environment configuration
+Add refresh token rotation hardening
+Add rate limiting
 Add email sending for reminders and templates
 Add background jobs with Hangfire or Quartz.NET
 Add Azure Blob Storage or AWS S3 for documents
-Add Dockerfile for API containerization
-Add production deployment
-Add refresh token rotation hardening
-Add rate limiting
-Add pagination to more list endpoints
+Add role-based authorization
 Add audit logging
 Add OpenAPI examples
 Add seed/demo data
@@ -916,5 +1062,3 @@ Add full text search
 Add soft delete support for job applications
 Add admin/demo user mode
 ```
-
----
