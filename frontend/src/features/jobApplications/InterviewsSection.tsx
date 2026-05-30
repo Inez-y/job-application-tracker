@@ -6,6 +6,7 @@ import {
   getInterviews,
 } from "../../api/interviewsApi";
 import type { InterviewType } from "../../types/interview";
+import { formatDate, formatDateTime } from "../../utils/dateFormat";
 
 type Props = { jobApplicationId: string; };
 
@@ -40,7 +41,7 @@ export function InterviewsSection({ jobApplicationId }: Props){
             createInterview(jobApplicationId, {
                 title,
                 type,
-                scheduledAt: new Date(scheduledAt).toISOString(),
+                scheduledAt: formatDateTime(scheduledAt),
                 durationMinutes,
                 interviewerName: interviewerName || null,
                 meetingLink: meetingLink || null,
@@ -210,7 +211,7 @@ export function InterviewsSection({ jobApplicationId }: Props){
 
                   <p className="mt-1 text-sm text-slate-600">
                     {interviewTypeLabels[interview.type]} ·{" "}
-                    {new Date(interview.scheduledAt).toLocaleString()} ·{" "}
+                    {formatDateTime(interview.scheduledAt)} ·{" "}
                     {interview.durationMinutes} minutes
                   </p>
 

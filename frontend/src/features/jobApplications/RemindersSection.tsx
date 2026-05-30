@@ -8,6 +8,7 @@ import {
   markReminderIncomplete,
 } from "../../api/remindersApi";
 import type { ReminderType } from "../../types/reminder";
+import { formatDateTime } from "../../utils/dateFormat";
 
 type Props = { jobApplicationId: string };
 
@@ -42,7 +43,7 @@ export function RemindersSection({ jobApplicationId }: Props) {
             createReminder(jobApplicationId, {
                 title,
                 type,
-                remindAt: new Date(remindAt).toISOString(),
+                remindAt: formatDateTime(remindAt),
             }),
         onSuccess: () => {
             setTitle("");
@@ -167,7 +168,7 @@ export function RemindersSection({ jobApplicationId }: Props) {
 
                   <p className="mt-1 text-sm text-slate-600">
                     {reminderTypeLabels[reminder.type]} ·{" "}
-                    {new Date(reminder.remindAt).toLocaleString()}
+                    {formatDateTime(reminder.remindAt)}
                   </p>
 
                   <p className="mt-1 text-sm text-slate-500">

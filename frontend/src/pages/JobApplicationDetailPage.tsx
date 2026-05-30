@@ -1,17 +1,18 @@
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getJobApplicationById,
-  getStatusHistory,
+import { deleteJobApplication, getJobApplicationById, getStatusHistory,
 } from "../api/jobApplicationsApi";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { StatusBadge } from "../components/ui/StatusBadge";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { ApplicationNotesSection } from "../features/jobApplications/ApplicationNotesSection";
 import { InterviewsSection } from "../features/jobApplications/InterviewsSection";
 import { RemindersSection } from "../features/jobApplications/RemindersSection";
 import { DocumentsSection } from "../features/jobApplications/DocumentsSection";
 import { EmailTemplatePreviewSection } from "../features/jobApplications/EmailTemplatePreviewSection";
+import { formatDate } from "../utils/dateFormat";
 
 const statusLabels: Record<number, string> = {
   0: "Wishlist",
@@ -25,6 +26,10 @@ const statusLabels: Record<number, string> = {
 
 export function JobApplicationDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobApplication", id],
@@ -41,6 +46,25 @@ export function JobApplicationDetailPage() {
         enabled: Boolean(id),
     });
 
+    async function handleDelete() {
+        if (!id) {
+          return;
+        }
+    
+        setServerError(null);
+        setIsDeleting(true);
+    
+        try {
+          await deleteJobApplication(id);
+          navigate("/applications");
+        } catch {
+          setServerError("Failed to delete job application.");
+        } finally {
+          setIsDeleting(false);
+          setIsDeleteDialogOpen(false);
+        }
+    }
+
     if (isLoading) {
         return <main className="p-8"> Loading application... </main>
     }
@@ -49,7 +73,6 @@ export function JobApplicationDetailPage() {
         return (
             <main className="p-8">
                 <p className="text-red-600">Failed to load application.</p>
-                
                 <Link to="/applications" className="mt-4 inline-block underline">
                     Back to applications
                 </Link>
@@ -62,13 +85,25 @@ export function JobApplicationDetailPage() {
         <div className="mx-auto max-w-4xl space-y-6">
         <Card>
             <div className="flex items-center justify-between gap-4">
-            <Link to="/applications" className="text-sm text-slate-600 underline">
-                Back to applications
-            </Link>
+                <Link to="/applications" className="text-sm text-slate-600 underline">
+                    Back to applications
+                </Link>
 
-            <Link to={`/applications/${data.id}/edit`}>
-                <Button type="button">Edit</Button>
-            </Link>
+                <div className="flex gap-3">
+                    <Link to={`/applications/${data.id}/edit`}>
+                        <Button type="button" variant="secondary">
+                        Edit
+                        </Button>
+                    </Link>
+
+                    <Button
+                        type="button"
+                        variant="danger"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                    >
+                        Delete
+                    </Button>
+                </div>
             </div>
 
             <div className="mt-6">
@@ -96,18 +131,14 @@ export function JobApplicationDetailPage() {
             <div>
                 <dt className="text-sm font-medium text-slate-500">Date Applied</dt>
                 <dd className="mt-1 text-slate-900">
-                {data.dateApplied
-                    ? new Date(data.dateApplied).toLocaleDateString()
-                    : "-"}
+                    {formatDate(data.dateApplied)}
                 </dd>
             </div>
 
             <div>
                 <dt className="text-sm font-medium text-slate-500">Deadline</dt>
                 <dd className="mt-1 text-slate-900">
-                {data.deadline
-                    ? new Date(data.deadline).toLocaleDateString()
-                    : "-"}
+                    {formatDate(data.deadline)}
                 </dd>
             </div>
 
@@ -144,6 +175,12 @@ export function JobApplicationDetailPage() {
             </div>
         </Card>
 
+        {serverError && (
+            <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                {serverError}
+            </p>
+        )}
+
         <Card>
             <h2 className="text-lg font-semibold text-slate-900">Status History</h2>
 
@@ -159,10 +196,10 @@ export function JobApplicationDetailPage() {
                     className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                 >
                     <p className="font-medium text-slate-900">
-                    {statusLabels[item.oldStatus]} → {statusLabels[item.newStatus]}
+                        {statusLabels[item.oldStatus]} → {statusLabels[item.newStatus]}
                     </p>
                     <p className="mt-1 text-sm text-slate-600">
-                    {new Date(item.changedAt).toLocaleString()}
+                        {formatDate(item.changedAt)}
                     </p>
                 </div>
                 ))}
@@ -190,6 +227,16 @@ export function JobApplicationDetailPage() {
             <EmailTemplatePreviewSection jobApplicationId={data.id} />
         </Card>
         </div>
+    
+        <ConfirmDialog
+            isOpen={isDeleteDialogOpen}
+            title="Delete job application?"
+            description="This will permanently delete this job application and its related notes, interviews, reminders, and documents. This action cannot be undone."
+            confirmLabel="Delete application"
+            isLoading={isDeleting}
+            onCancel={() => setIsDeleteDialogOpen(false)}
+            onConfirm={handleDelete}
+        />
     </main>
     );
 }
