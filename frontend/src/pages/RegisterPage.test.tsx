@@ -39,15 +39,15 @@ describe("RegisterPage", () => {
       </MemoryRouter>
     );
 
-    await user.type(screen.getByLabelText(/first name/i), "Inez");
-    await user.type(screen.getByLabelText(/last name/i), "Yoon");
+    await user.type(screen.getByLabelText(/first name/i), "example");
+    await user.type(screen.getByLabelText(/last name/i), "account");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
     expect(
       screen.getByRole("heading", { name: /email/i })
     ).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText(/email/i), "inez@example.com");
+    await user.type(screen.getByLabelText(/email/i), "example@example.com");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
     expect(
@@ -66,8 +66,8 @@ describe("RegisterPage", () => {
       screen.getByRole("heading", { name: /review your account/i })
     ).toBeInTheDocument();
 
-    expect(screen.getByText(/inez yoon/i)).toBeInTheDocument();
-    expect(screen.getByText(/inez@example.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/example account/i)).toBeInTheDocument();
+    expect(screen.getByText(/example@example.com/i)).toBeInTheDocument();
     expect(screen.getByText(/password confirmed/i)).toBeInTheDocument();
     expect(screen.getByText(/step 4 of 4/i)).toBeInTheDocument();
   });
@@ -81,11 +81,11 @@ describe("RegisterPage", () => {
       </MemoryRouter>
     );
 
-    await user.type(screen.getByLabelText(/first name/i), "Inez");
-    await user.type(screen.getByLabelText(/last name/i), "Yoon");
+    await user.type(screen.getByLabelText(/first name/i), "example");
+    await user.type(screen.getByLabelText(/last name/i), "account");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
-    await user.type(screen.getByLabelText(/email/i), "inez@example.com");
+    await user.type(screen.getByLabelText(/email/i), "example@example.com");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -112,11 +112,11 @@ describe("RegisterPage", () => {
       </MemoryRouter>
     );
 
-    await user.type(screen.getByLabelText(/first name/i), "Inez");
-    await user.type(screen.getByLabelText(/last name/i), "Yoon");
+    await user.type(screen.getByLabelText(/first name/i), "example");
+    await user.type(screen.getByLabelText(/last name/i), "account");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
-    await user.type(screen.getByLabelText(/email/i), "inez@example.com");
+    await user.type(screen.getByLabelText(/email/i), "example@example.com");
     await user.click(screen.getByRole("button", { name: /continue/i }));
 
     await user.type(screen.getByLabelText(/^password$/i), "Password123!");

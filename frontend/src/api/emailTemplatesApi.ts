@@ -32,3 +32,15 @@ export async function previewEmailTemplate(
 
     return response.data;
 }
+
+export async function updateEmailTemplate(
+  id: string,
+  request: CreateEmailTemplateRequest
+): Promise<EmailTemplate> {
+  const response = await axiosClient.put<EmailTemplate>(
+    `/api/email-templates/${id}`,
+    request
+  );
+
+  return response.data;
+}

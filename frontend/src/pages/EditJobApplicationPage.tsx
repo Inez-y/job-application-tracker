@@ -12,6 +12,8 @@ import {
   type JobApplicationFormValues,
   toApplicationStatus,
 } from "../features/jobApplications/JobApplicationForm";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+
 
 function toDateInputValue(value: string | null): string {
   if (!value) {
@@ -26,6 +28,8 @@ export function EditJobApplicationPage() {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["jobApplication", id],
@@ -71,19 +75,17 @@ export function EditJobApplicationPage() {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this job application?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
+    setServerError(null);
+    setIsDeleting(true);
 
     try {
       await deleteJobApplication(id);
       navigate("/applications");
     } catch {
       setServerError("Failed to delete job application.");
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteDialogOpen(false);
     }
   }
 
@@ -143,10 +145,20 @@ export function EditJobApplicationPage() {
             showDelete
             onSubmit={onSubmit}
             onCancel={() => navigate(`/applications/${id}`)}
-            onDelete={handleDelete}
+            onDelete={() => setIsDeleteDialogOpen(true)}
           />
         </Card>
       </div>
+
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title="Delete job application?"
+        description="This will permanently delete this job application and its related notes, interviews, reminders, and documents. This action cannot be undone."
+        confirmLabel="Delete application"
+        isLoading={isDeleting}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+      />
     </main>
   );
 }
