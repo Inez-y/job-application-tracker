@@ -4,6 +4,8 @@ import type {
   CreateApplicationNoteRequest,
 } from "../types/applicationNote";
 
+export type updateApplicationNoteRequest = { content: string; };
+
 export async function getApplicationNotes(jobApplicationId: string): Promise<ApplicationNote[]> {
   const response = await axiosClient.get<ApplicationNote[]>(
     `/api/job-applications/${jobApplicationId}/notes`
@@ -20,6 +22,15 @@ export async function createApplicationNote(jobApplicationId: string, request: C
   );
 
   return response.data;
+}
+
+export async function updateApplicationNote(
+  jobApplicationId: string, noteId: string, request: CreateApplicationNoteRequest
+):Promise<void> {
+  await axiosClient.put(
+    `/api/job-applications/${jobApplicationId}/notes/${noteId}`,
+    request
+  );
 }
 
 export async function deleteApplicationNote(jobApplicationId: string, noteId: string
