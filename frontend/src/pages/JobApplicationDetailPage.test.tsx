@@ -7,13 +7,11 @@ import { JobApplicationDetailPage } from "./JobApplicationDetailPage";
 import {
   deleteJobApplication,
   getJobApplicationById,
-  getStatusHistory,
 } from "../api/jobApplicationsApi";
-import type { ApplicationStatusHistory, JobApplication } from "../types/jobApplication";
+import type { JobApplication } from "../types/jobApplication";
 
 vi.mock("../api/jobApplicationsApi", () => ({
   getJobApplicationById: vi.fn(),
-  getStatusHistory: vi.fn(),
   deleteJobApplication: vi.fn(),
 }));
 
@@ -94,22 +92,11 @@ const application: JobApplication= {
   updatedAt: "2026-05-20T00:00:00Z",
 };
 
-const statusHistory: ApplicationStatusHistory[] = [
-  {
-    id: "history-1",
-    jobApplicationId: "app-1",
-    oldStatus: 1,
-    newStatus: 3,
-    changedAt: "2026-05-21T00:00:00Z",
-  },
-];
-
 describe("JobApplicationDetailPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     vi.mocked(getJobApplicationById).mockResolvedValue(application);
-    vi.mocked(getStatusHistory).mockResolvedValue(statusHistory);
     vi.mocked(deleteJobApplication).mockResolvedValue(undefined);
   });
 
@@ -139,11 +126,9 @@ describe("JobApplicationDetailPage", () => {
     ).toHaveAttribute("href", "https://example.com/job");
   });
 
-  it("renders status history", async () => {
-    renderPage();
-
-    expect(await screen.findByText(/applied → interviewing/i)).toBeInTheDocument();
-  });
+  vi.mock("../features/jobApplications/StatusHistorySection", () => ({
+    StatusHistorySection: () => <section>Status History Section</section>,
+  }));
 
   it("renders child sections", async () => {
     renderPage();

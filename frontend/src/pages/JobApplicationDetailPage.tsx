@@ -11,18 +11,9 @@ import { ApplicationNotesSection } from "../features/jobApplications/Application
 import { InterviewsSection } from "../features/jobApplications/InterviewsSection";
 import { RemindersSection } from "../features/jobApplications/RemindersSection";
 import { DocumentsSection } from "../features/jobApplications/DocumentsSection";
+import { StatusHistorySection } from "../features/jobApplications/StatusHistorySection";
 import { EmailTemplatePreviewSection } from "../features/jobApplications/EmailTemplatePreviewSection";
 import { formatDate } from "../utils/dateFormat";
-
-const statusLabels: Record<number, string> = {
-  0: "Wishlist",
-  1: "Applied",
-  2: "Online Assessment",
-  3: "Interviewing",
-  4: "Offer",
-  5: "Rejected",
-  6: "Withdrawn",
-};
 
 export function JobApplicationDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -34,15 +25,6 @@ export function JobApplicationDetailPage() {
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobApplication", id],
         queryFn: () => getJobApplicationById(id!),
-        enabled: Boolean(id),
-    });
-
-    const {
-        data: statusHistory,
-        isLoading: isStatusHistoryLoading,
-        } = useQuery({
-        queryKey: ["statusHistory", id],
-        queryFn: () => getStatusHistory(id!),
         enabled: Boolean(id),
     });
 
@@ -182,29 +164,7 @@ export function JobApplicationDetailPage() {
         )}
 
         <Card>
-            <h2 className="text-lg font-semibold text-slate-900">Status History</h2>
-
-            {isStatusHistoryLoading ? (
-            <p className="mt-2 text-slate-600">Loading status history...</p>
-            ) : !statusHistory || statusHistory.length === 0 ? (
-            <p className="mt-2 text-slate-600">No status changes yet.</p>
-            ) : (
-            <div className="mt-4 space-y-3">
-                {statusHistory.map((item) => (
-                <div
-                    key={item.id}
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
-                >
-                    <p className="font-medium text-slate-900">
-                        {statusLabels[item.oldStatus]} → {statusLabels[item.newStatus]}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600">
-                        {formatDate(item.changedAt)}
-                    </p>
-                </div>
-                ))}
-            </div>
-            )}
+            <StatusHistorySection jobApplicationId={data.id} />
         </Card>
 
         <Card>
