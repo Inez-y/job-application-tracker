@@ -34,7 +34,12 @@ jobs:
       - name: Build backend
         run: dotnet build JobTracker.sln --configuration Release --no-restore
 
+      - name: Pull PostgreSQL test image
+        run: docker pull postgres:16
+
       - name: Test backend with coverage
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: dotnet test JobTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
 
       - name: Upload backend coverage report

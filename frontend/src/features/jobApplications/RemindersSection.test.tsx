@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import type { Reminder } from "../../types/reminder";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RemindersSection } from "./RemindersSection";
@@ -11,7 +12,6 @@ import {
   markReminderIncomplete,
   updateReminder,
 } from "../../api/remindersApi";
-import type { Reminder } from "../../types/reminder";
 
 vi.mock("../../api/remindersApi", () => ({
   getReminders: vi.fn(),
@@ -41,18 +41,18 @@ function renderSection() {
   );
 }
 
-const reminders: Reminder[] = [
-  {
-    id: "reminder-1",
-    jobApplicationId: "app-1",
-    title: "Follow up with recruiter",
-    type: 0,
-    remindAt: "2026-05-22T18:30:00Z",
-    isCompleted: false,
-    createdAt: "2026-05-20T00:00:00Z",
-    updatedAt: "2026-05-20T00:00:00Z",
-  },
-];
+const reminder: Reminder = {
+  id: "reminder-1",
+  jobApplicationId: "app-1",
+  title: "Follow up with recruiter",
+  type: 0,
+  remindAt: "2026-05-22T18:30:00Z",
+  isCompleted: false,
+  createdAt: "2026-05-20T00:00:00Z",
+  updatedAt: "2026-05-20T00:00:00Z",
+};
+
+const reminders: Reminder[] = [reminder];
 
 describe("RemindersSection", () => {
   beforeEach(() => {
@@ -72,7 +72,7 @@ describe("RemindersSection", () => {
     } satisfies Reminder);
 
     vi.mocked(updateReminder).mockResolvedValue({
-      ...reminders[0],
+      ...reminder,
       title: "Updated reminder",
     } satisfies Reminder);
 
@@ -221,7 +221,7 @@ describe("RemindersSection", () => {
 
     vi.mocked(getReminders).mockResolvedValue([
       {
-        ...reminders[0],
+        ...reminder,
         isCompleted: true,
       },
     ]);
