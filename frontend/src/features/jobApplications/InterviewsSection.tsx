@@ -6,7 +6,7 @@ import {
   getInterviews,
 } from "../../api/interviewsApi";
 import type { InterviewType } from "../../types/interview";
-import { formatDate, formatDateTime } from "../../utils/dateFormat";
+import { formatDateTime } from "../../utils/dateFormat";
 
 type Props = { jobApplicationId: string; };
 

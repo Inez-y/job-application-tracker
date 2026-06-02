@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { deleteJobApplication, getJobApplicationById, getStatusHistory,
-} from "../api/jobApplicationsApi";
+import { deleteJobApplication, getJobApplicationById } from "../api/jobApplicationsApi";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { StatusBadge } from "../components/ui/StatusBadge";
