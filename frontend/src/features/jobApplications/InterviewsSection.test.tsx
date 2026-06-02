@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { Interview } from "../../types/interview";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { InterviewsSection } from "./InterviewsSection";
 import {
@@ -36,7 +37,7 @@ function renderSection() {
   );
 }
 
-const interviews = [
+const interviews: Interview[] = [
   {
     id: "interview-1",
     jobApplicationId: "app-1",
@@ -72,12 +73,12 @@ describe("InterviewsSection", () => {
       notes: null,
       createdAt: "2026-05-20T00:00:00Z",
       updatedAt: "2026-05-20T00:00:00Z",
-    });
+    } satisfies Interview);
 
     vi.mocked(updateInterview).mockResolvedValue({
       ...interviews[0],
       title: "Updated Interview",
-    });
+    } satisfies Interview);
 
     vi.mocked(deleteInterview).mockResolvedValue(undefined);
   });
