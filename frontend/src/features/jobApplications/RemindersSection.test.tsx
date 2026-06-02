@@ -77,9 +77,17 @@ describe("RemindersSection", () => {
     } satisfies Reminder);
 
     vi.mocked(deleteReminder).mockResolvedValue(undefined);
-    vi.mocked(markReminderComplete).mockResolvedValue(undefined);
-    vi.mocked(markReminderIncomplete).mockResolvedValue(undefined);
-  });
+
+    vi.mocked(markReminderComplete).mockResolvedValue({
+      ...reminder,
+      isCompleted: true,
+    } satisfies Reminder);
+
+    vi.mocked(markReminderIncomplete).mockResolvedValue({
+      ...reminder,
+      isCompleted: false,
+    } satisfies Reminder);
+    });
 
   it("renders reminders", async () => {
     renderSection();
@@ -219,7 +227,7 @@ describe("RemindersSection", () => {
   it("marks a completed reminder incomplete", async () => {
     const user = userEvent.setup();
 
-    vi.mocked(getReminders).mockResolvedValue([
+     vi.mocked(getReminders).mockResolvedValue([
       {
         ...reminder,
         isCompleted: true,
