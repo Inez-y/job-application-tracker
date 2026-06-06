@@ -1,15 +1,17 @@
-using JobTracker.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using System.Text;
-using JobTracker.Api.Services;
+using Serilog;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Identity;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using JobTracker.Api.Services;
 using JobTracker.Api.Middleware;
 using JobTracker.Api.Extensions;
-using Serilog;
+using JobTracker.Domain.Entities;
+using JobTracker.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();

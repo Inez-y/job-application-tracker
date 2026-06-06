@@ -61,6 +61,18 @@ export function AppLayout() {
               }
             >
               Email Templates
+            
+            </NavLink>
+
+                        <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                isActive
+                  ? "font-medium text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              }
+            >
+              Profile
             </NavLink>
           </nav>
 
