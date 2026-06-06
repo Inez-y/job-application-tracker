@@ -28,6 +28,14 @@ const placeholders = [
   { label: "Deadline", value: "{{Deadline}}" },
 ];
 
+const placeholderDisplayLabels: Record<string, string> = {
+  "{{CompanyName}}": "Company Name",
+  "{{JobTitle}}": "Job Title",
+  "{{Location}}": "Location",
+  "{{DateApplied}}": "Date Applied",
+  "{{Deadline}}": "Deadline",
+};
+
 export function EmailTemplatesPage() {
     const queryClient = useQueryClient();
 
@@ -73,15 +81,6 @@ export function EmailTemplatesPage() {
         },
     });
 
-    function insertPlaceholder(value: string){
-        if (activeField === "subject") {
-            setSubject((current) => `${current}${value}`);
-            return;
-        }
-
-        setBody((current) => `${current}${value}`);
-    }
-
     const updateMutation = useMutation({
         mutationFn: () => {
             if (!editingTemplateId) {
@@ -107,6 +106,36 @@ export function EmailTemplatesPage() {
             });
         },
     });
+
+    function insertPlaceholder(value: string){
+        if (activeField === "subject") {
+            setSubject((current) => `${current}${value}`);
+            return;
+        }
+
+        setBody((current) => `${current}${value}`);
+    }
+
+    function renderTemplateText(text: string) {
+        const parts = text.split(/(\{\{[^}]+\}\})/g);
+
+        return parts.map((part, index) => {
+            const label = placeholderDisplayLabels[part];
+
+            if (!label) {
+            return <span key={index}>{part}</span>;
+            }
+
+            return (
+            <em
+                key={index}
+                className="rounded bg-slate-100 text-slate-700"
+            >
+                {label}
+            </em>
+            );
+        });
+    }
 
     return (
     <main className="min-h-screen bg-slate-100 p-8">
@@ -301,21 +330,21 @@ export function EmailTemplatesPage() {
                         className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                     >
                         <div className="flex items-start justify-between gap-4">
-                            <div>
+                            <div className="text-indigo-400">
                                 <h3 className="font-semibold text-slate-900">
                                 {template.name}
                                 </h3>
 
                                 <p className="mt-1 text-sm text-slate-600">
-                                {templateTypeLabels[template.type]}
+                                Template type: {templateTypeLabels[template.type]}
                                 </p>
 
-                                <p className="mt-3 font-medium text-slate-800">
-                                {template.subject}
+                                <p className="mt-1 font-semibold text-slate-900">
+                                {renderTemplateText(template.subject)}
                                 </p>
 
-                                <p className="mt-2 whitespace-pre-wrap text-sm text-slate-600">
-                                {template.body}
+                                <p className="mt-2 whitespace-pre-wrap text-slate-700">
+                                {renderTemplateText(template.body)}
                                 </p>
                             </div>
 
