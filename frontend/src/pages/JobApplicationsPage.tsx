@@ -85,8 +85,10 @@ export function JobApplicationsPage() {
             </p>
             </div>
 
-            <Link to="/applications/new">
-            <Button type="button">Add Application</Button>
+            <Link to="/applications/new" className="w-full sm:w-auto">
+                <Button type="button" className="w-full sm:w-auto">
+                Add Application
+                </Button>
             </Link>
         </div>
 

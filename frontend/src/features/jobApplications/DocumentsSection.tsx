@@ -91,7 +91,7 @@ export function DocumentsSection({ jobApplicationId }: Props) {
   }
 
   return (
-    <section className="mt-8">
+    <section className="">
       <h2 className="text-lg font-semibold text-slate-900"> Documents </h2>
 
       <form

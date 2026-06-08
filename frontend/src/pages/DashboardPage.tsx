@@ -62,16 +62,16 @@ export function DashboardPage() {
   return (
     <main className="min-h-screen bg-slate-100 p-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="space-y-4 m-2">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900 xm:text-2xl">Dashboard</h1>
             <p className="mt-2 text-slate-600">
               Overview of your job search activity.
             </p>
           </div>
 
-          <Link to="/applications/new">
-            <Button type="button">Add Application</Button>
+          <Link to="/applications/new" className="block sm:inline-block">
+            <Button type="button" className="w-full sm:w-auto">Add Application</Button>
           </Link>
         </div>
 
@@ -222,7 +222,7 @@ export function DashboardPage() {
 
         <div className="mt-6">
           <Link to="/applications">
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" className="w-full">
               View all applications
             </Button>
           </Link>

@@ -179,6 +179,7 @@ export function ProfilePage() {
 
             <Button
               type="submit"
+              className="w-full"
               disabled={
                 updateMutation.isPending ||
                 !firstName.trim() ||
@@ -294,6 +295,7 @@ export function ProfilePage() {
 
               <Button
                 type="submit"
+                className="w-full"
                 disabled={
                   changePasswordMutation.isPending ||
                   !currentPassword ||

@@ -221,25 +221,23 @@ export function JobApplicationForm({
         </p>
       )}
 
-      <div className="flex items-center justify-between gap-3 pt-2">
+      <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         {showDelete && onDelete ? (
-          <Button type="button" variant="danger" onClick={onDelete}>
+          <Button type="button" variant="danger" onClick={onDelete} className="w-full sm:w-auto">
             Delete
           </Button>
         ) : (
           <div />
         )}
 
-        <div className="flex gap-3">
-          <Button type="button" variant="secondary" onClick={onCancel}>
+          <Button type="button" variant="secondary" onClick={onCancel} className="w-full sm:w-auto">
             Cancel
           </Button>
 
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
             {isSubmitting ? submittingLabel : submitLabel}
           </Button>
         </div>
-      </div>
     </form>
   );
 }

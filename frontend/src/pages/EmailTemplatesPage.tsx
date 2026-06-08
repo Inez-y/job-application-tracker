@@ -46,6 +46,8 @@ export function EmailTemplatesPage() {
     const [activeField, setActiveField] = useState<"subject" | "body">("body");
     const [templateIdToDelete, setTemplateIdToDelete] = useState<string | null>(null);
     const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["emailTemplates"],
@@ -53,23 +55,29 @@ export function EmailTemplatesPage() {
     });
 
     const createMutation = useMutation({
-        mutationFn: () =>
-            createEmailTemplate({
-                name,
-                type,
-                subject,
-                body,
-            }),
-        onSuccess: () => {
-            setName("");
-            setType(0);
-            setSubject("");
-            setBody("");
+    mutationFn: () =>
+        createEmailTemplate({
+        name,
+        type,
+        subject,
+        body,
+        }),
+    onSuccess: () => {
+        setName("");
+        setType(0);
+        setSubject("");
+        setBody("");
+        setSuccessMessage("Email template created successfully.");
+        setFormError(null);
 
-            queryClient.invalidateQueries({
-                queryKey: ["emailTemplates"],
-            });
-        },
+        queryClient.invalidateQueries({
+        queryKey: ["emailTemplates"],
+        });
+    },
+    onError: () => {
+        setSuccessMessage(null);
+        setFormError("Failed to create email template.");
+    },
     });
 
     const deleteMutation = useMutation({
@@ -82,29 +90,35 @@ export function EmailTemplatesPage() {
     });
 
     const updateMutation = useMutation({
-        mutationFn: () => {
-            if (!editingTemplateId) {
-            throw new Error("No template selected.");
-            }
+    mutationFn: () => {
+        if (!editingTemplateId) {
+        throw new Error("No template selected.");
+        }
 
-            return updateEmailTemplate(editingTemplateId, {
-            name,
-            type,
-            subject,
-            body,
-            });
-        },
-        onSuccess: () => {
-            setEditingTemplateId(null);
-            setName("");
-            setType(0);
-            setSubject("");
-            setBody("");
+        return updateEmailTemplate(editingTemplateId, {
+        name,
+        type,
+        subject,
+        body,
+        });
+    },
+    onSuccess: () => {
+        setEditingTemplateId(null);
+        setName("");
+        setType(0);
+        setSubject("");
+        setBody("");
+        setSuccessMessage("Email template updated successfully.");
+        setFormError(null);
 
-            queryClient.invalidateQueries({
-            queryKey: ["emailTemplates"],
-            });
-        },
+        queryClient.invalidateQueries({
+        queryKey: ["emailTemplates"],
+        });
+    },
+    onError: () => {
+        setSuccessMessage(null);
+        setFormError("Failed to update email template.");
+    },
     });
 
     function insertPlaceholder(value: string){
@@ -138,10 +152,10 @@ export function EmailTemplatesPage() {
     }
 
     return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-6xl space-y-6">
-            <div>
-                <h1 className="text-3xl font-bold text-slate-900">
+            <div className="m-2">
+                <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
                 Email Templates
                 </h1>
                 <p className="mt-2 text-slate-600">
@@ -167,6 +181,8 @@ export function EmailTemplatesPage() {
                         } else {
                             createMutation.mutate();
                         }
+                          setSuccessMessage(null);
+                          setFormError(null);
                     }}
                     className="mt-4 space-y-4"
                 >
@@ -180,7 +196,9 @@ export function EmailTemplatesPage() {
                     <input
                         id="templateName"
                         value={name}
-                        onChange={(event) => setName(event.target.value)}
+                        onChange={(event) => {
+                            setName(event.target.value);   
+                        }}
                         className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
                         placeholder="Follow-up after application"
                     />
@@ -265,11 +283,23 @@ export function EmailTemplatesPage() {
                     </div>
                 </div>
 
-                <div className="flex gap-3">
+                {successMessage && (
+                <p className="rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+                    {successMessage}
+                </p>
+                )}
+
+                {formError && (
+                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {formError}
+                </p>
+                )}
+                <div className="flex flex-col gap-3">
                 {editingTemplateId && (
                     <Button
                     type="button"
                     variant="secondary"
+                    className="w-full sm:w-auto"
                     onClick={() => {
                         setEditingTemplateId(null);
                         setName("");
@@ -278,28 +308,29 @@ export function EmailTemplatesPage() {
                         setBody("");
                     }}
                     >
-                        Cancel Edit
+                    Cancel Edit
                     </Button>
-                    )}
+                )}
 
-                    <Button
-                        type="submit"
-                        disabled={
-                        createMutation.isPending ||
-                        updateMutation.isPending ||
-                        !name.trim() ||
-                        !subject.trim() ||
-                        !body.trim()
-                        }
-                    >
-                        {editingTemplateId
-                        ? updateMutation.isPending
-                            ? "Saving..."
-                            : "Save Changes"
-                        : createMutation.isPending
-                            ? "Creating..."
-                            : "Create Template"}
-                    </Button>
+                <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={
+                    createMutation.isPending ||
+                    updateMutation.isPending ||
+                    !name.trim() ||
+                    !subject.trim() ||
+                    !body.trim()
+                    }
+                >
+                    {editingTemplateId
+                    ? updateMutation.isPending
+                        ? "Saving..."
+                        : "Save Changes"
+                    : createMutation.isPending
+                        ? "Creating..."
+                        : "Create Template"}
+                </Button>
                 </div>
 
                 </form>
@@ -329,50 +360,52 @@ export function EmailTemplatesPage() {
                         key={template.id}
                         className="rounded-lg border border-slate-200 bg-slate-50 p-4"
                     >
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="text-indigo-400">
-                                <h3 className="font-semibold text-slate-900">
-                                {template.name}
-                                </h3>
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                            <h3 className="break-words font-semibold text-slate-900">
+                            {template.name}
+                            </h3>
 
-                                <p className="mt-1 text-sm text-slate-600">
-                                Template type: {templateTypeLabels[template.type]}
-                                </p>
+                            <p className="mt-1 text-sm text-slate-600">
+                            Template type: {templateTypeLabels[template.type]}
+                            </p>
 
-                                <p className="mt-1 font-semibold text-slate-900">
-                                {renderTemplateText(template.subject)}
-                                </p>
+                            <p className="mt-3 break-words font-semibold text-slate-900">
+                            {renderTemplateText(template.subject)}
+                            </p>
 
-                                <p className="mt-2 whitespace-pre-wrap text-slate-700">
-                                {renderTemplateText(template.body)}
-                                </p>
-                            </div>
+                            <p className="mt-2 whitespace-pre-wrap break-words text-slate-700">
+                            {renderTemplateText(template.body)}
+                            </p>
+                        </div>
 
-                            <div className="flex gap-2">
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={() => {
-                                    setEditingTemplateId(template.id);
-                                    setName(template.name);
-                                    setType(template.type);
-                                    setSubject(template.subject);
-                                    setBody(template.body);
-                                    window.scrollTo({ top: 0, behavior: "smooth" });
-                                    }}
-                                >
-                                    Edit
-                                </Button>
+                        <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+                            <Button
+                            type="button"
+                            variant="secondary"
+                            className="w-full sm:w-auto"
+                            onClick={() => {
+                                setEditingTemplateId(template.id);
+                                setName(template.name);
+                                setType(template.type);
+                                setSubject(template.subject);
+                                setBody(template.body);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            >
+                            Edit
+                            </Button>
 
-                                <Button
-                                    type="button"
-                                    variant="danger"
-                                    onClick={() => setTemplateIdToDelete(template.id)}
-                                    disabled={deleteMutation.isPending}
-                                >
-                                    Delete
-                                </Button>
-                            </div>
+                            <Button
+                            type="button"
+                            variant="danger"
+                            className="w-full sm:w-auto"
+                            onClick={() => setTemplateIdToDelete(template.id)}
+                            disabled={deleteMutation.isPending}
+                            >
+                            Delete
+                            </Button>
+                        </div>
                         </div>
                     </div>
                     ))}

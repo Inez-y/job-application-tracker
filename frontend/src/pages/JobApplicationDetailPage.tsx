@@ -62,75 +62,82 @@ export function JobApplicationDetailPage() {
     }
 
     return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-4xl space-y-6">
         <Card>
-            <div className="flex items-center justify-between gap-4">
-                <Link to="/applications" className="text-sm text-slate-600 underline">
-                    Back to applications
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Link to="/applications" className="text-sm text-slate-600 underline">
+                Back to applications
+            </Link>
+
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
+                <Link to={`/applications/${data.id}/edit`} className="w-full sm:w-auto">
+                <Button type="button" variant="secondary" className="w-full sm:w-auto">
+                    Edit
+                </Button>
                 </Link>
 
-                <div className="flex gap-3">
-                    <Link to={`/applications/${data.id}/edit`}>
-                        <Button type="button" variant="secondary">
-                        Edit
-                        </Button>
-                    </Link>
-
-                    <Button
-                        type="button"
-                        variant="danger"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                    >
-                        Delete
-                    </Button>
-                </div>
+                <Button
+                type="button"
+                variant="danger"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="w-full sm:w-auto"
+                >
+                Delete
+                </Button>
+            </div>
             </div>
 
             <div className="mt-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                <h1 className="text-3xl font-bold text-slate-900">
+                <h1 className="break-words text-2xl font-bold text-slate-900 sm:text-3xl">
                     {data.jobTitle}
                 </h1>
 
-                <p className="mt-2 text-xl text-slate-700">
+                <p className="mt-2 break-words text-lg text-slate-700 sm:text-xl">
                     {data.companyName}
                 </p>
                 </div>
 
+                <div className="self-start">
                 <StatusBadge status={data.status} />
+                </div>
             </div>
             </div>
 
             <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Location</dt>
-                <dd className="mt-1 text-slate-900">{data.location ?? "-"}</dd>
+                <dd className="mt-1 break-words text-slate-900">
+                {data.location ?? "-"}
+                </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Date Applied</dt>
                 <dd className="mt-1 text-slate-900">
-                    {formatDate(data.dateApplied)}
+                {formatDate(data.dateApplied)}
                 </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Deadline</dt>
                 <dd className="mt-1 text-slate-900">
-                    {formatDate(data.deadline)}
+                {formatDate(data.deadline)}
                 </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Salary Range</dt>
-                <dd className="mt-1 text-slate-900">{data.salaryRange ?? "-"}</dd>
+                <dd className="mt-1 break-words text-slate-900">
+                {data.salaryRange ?? "-"}
+                </dd>
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="rounded-lg bg-slate-50 p-4 sm:col-span-2">
                 <dt className="text-sm font-medium text-slate-500">Job URL</dt>
-                <dd className="mt-1">
+                <dd className="mt-1 break-words">
                 {data.jobUrl ? (
                     <a
                     href={data.jobUrl}
@@ -150,15 +157,15 @@ export function JobApplicationDetailPage() {
             <div className="mt-8">
             <h2 className="text-lg font-semibold text-slate-900">Notes</h2>
 
-            <p className="mt-2 whitespace-pre-wrap text-slate-700">
+            <p className="mt-2 whitespace-pre-wrap wrap-break-word text-slate-700">
                 {data.notes || "No notes yet."}
             </p>
             </div>
         </Card>
 
         {serverError && (
-            <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-                {serverError}
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            {serverError}
             </p>
         )}
 
@@ -186,15 +193,15 @@ export function JobApplicationDetailPage() {
             <EmailTemplatePreviewSection jobApplicationId={data.id} />
         </Card>
         </div>
-    
+
         <ConfirmDialog
-            isOpen={isDeleteDialogOpen}
-            title="Delete job application?"
-            description="This will permanently delete this job application and its related notes, interviews, reminders, and documents. This action cannot be undone."
-            confirmLabel="Delete application"
-            isLoading={isDeleting}
-            onCancel={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDelete}
+        isOpen={isDeleteDialogOpen}
+        title="Delete job application?"
+        description="This will permanently delete this job application and its related notes, interviews, reminders, and documents. This action cannot be undone."
+        confirmLabel="Delete application"
+        isLoading={isDeleting}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
         />
     </main>
     );
