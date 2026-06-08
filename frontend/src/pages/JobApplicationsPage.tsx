@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { getJobApplications } from "../api/jobApplicationsApi";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -18,6 +18,7 @@ const statusLabels: Record<number, string> = {
 };
 
 export function JobApplicationsPage() {
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
 
     const statusParam = searchParams.get("status");
@@ -71,11 +72,11 @@ export function JobApplicationsPage() {
             : applications;
             
     return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
                 Job Applications
             </h1>
 
@@ -193,7 +194,9 @@ export function JobApplicationsPage() {
                 <span>
                 {deadlineFilter === "upcoming"
                     ? "Showing applications with upcoming deadlines."
-                    : `Showing ${statusLabels[Number(status)] ?? "selected"} applications.`}
+                    : `Showing ${
+                        statusLabels[Number(status)] ?? "selected"
+                    } applications.`}
                 </span>
 
                 <Link to="/applications" className="font-medium underline">
@@ -222,61 +225,113 @@ export function JobApplicationsPage() {
         )}
 
         {!isLoading && !isError && visibleApplications.length > 0 && (
-            <Card className="overflow-hidden p-0">
+            <>
+            <div className="space-y-4 md:hidden">
+                {visibleApplications.map((application) => (
+                    <Link
+                    key={application.id}
+                    to={`/applications/${application.id}`}
+                    className="block focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    >
+                    <Card className="cursor-pointer transition hover:shadow-md">
+                        <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 className="text-lg font-semibold text-slate-900">
+                            {application.companyName}
+                            </h2>
 
-                <table className="w-full text-center text-sm">
-                <thead className="bg-slate-800 text-slate-50">
-                    <tr>
-                    <th className="px-4 py-3 font-medium">Company</th>
-                    <th className="px-4 py-3 font-medium">Job Title</th>
-                    <th className="px-4 py-3 font-medium">Status</th>
-                    <th className="px-4 py-3 font-medium">Date Applied</th>
-                    <th className="px-4 py-3 font-medium">Deadline</th>
-                    <th className="px-4 py-3 font-medium">Actions</th>
-                    </tr>
-                </thead>
+                            <p className="mt-1 text-sm text-slate-600">
+                            {application.jobTitle}
+                            </p>
+                        </div>
 
-                <tbody className="divide-y divide-slate-100">
-                    {visibleApplications.map((application) => (
-                    <tr key={application.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3 font-medium text-slate-900">
-                        {application.companyName}
-                        </td>
-
-                        <td className="px-4 py-3 text-slate-700">
-                        {application.jobTitle}
-                        </td>
-
-                        <td className="px-4 py-3">
                         <StatusBadge status={application.status} />
+                        </div>
+
+                        <dl className="mt-4 space-y-3 text-sm">
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-medium text-slate-500">Date Applied</dt>
+                            <dd className="text-right text-slate-900">
+                            {formatDate(application.dateApplied)}
+                            </dd>
+                        </div>
+
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-medium text-slate-500">Deadline</dt>
+                            <dd className="text-right text-slate-900">
+                            {formatDate(application.deadline)}
+                            </dd>
+                        </div>
+                        </dl>
+
+                        <p className="mt-4 text-sm font-medium text-slate-900 underline">
+                        View details
+                        </p>
+                    </Card>
+                    </Link>
+                ))}
+            </div>
+
+            <Card className="hidden overflow-hidden p-0 md:block">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-center text-sm">
+                    <thead className="bg-slate-800 text-slate-50">
+                    <tr>
+                        <th className="px-4 py-3 font-medium">Company</th>
+                        <th className="px-4 py-3 font-medium">Job Title</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 font-medium">Date Applied</th>
+                        <th className="px-4 py-3 font-medium">Deadline</th>
+                    </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-100">
+                    {visibleApplications.map((application) => (
+                        <tr
+                        key={application.id}
+                        onClick={() =>
+                            navigate(`/applications/${application.id}`)
+                        }
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigate(`/applications/${application.id}`);
+                            }
+                        }}
+                        tabIndex={0}
+                        role="link"
+                        className="cursor-pointer hover:bg-slate-50 focus:bg-slate-50 focus:outline-none"
+                        >
+                        <td className="px-4 py-3 font-medium text-slate-900">
+                            {application.companyName}
                         </td>
 
                         <td className="px-4 py-3 text-slate-700">
-                        {formatDate(application.dateApplied)}
-                        </td>
-
-                        <td className="px-4 py-3 text-slate-700">
-                        {formatDate(application.deadline)}
+                            {application.jobTitle}
                         </td>
 
                         <td className="px-4 py-3">
-                        <Link
-                            to={`/applications/${application.id}`}
-                            className="font-medium text-slate-900 underline"
-                        >
-                            View
-                        </Link>
+                            <StatusBadge status={application.status} />
                         </td>
-                    </tr>
-                    ))}
-                </tbody>
-                </table>
 
+                        <td className="px-4 py-3 text-slate-700">
+                            {formatDate(application.dateApplied)}
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700">
+                            {formatDate(application.deadline)}
+                        </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
             </Card>
+            </>
         )}
 
         {data && data.totalPages > 1 && (
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
             <Button
                 type="button"
                 variant="secondary"
