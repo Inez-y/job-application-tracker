@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -28,6 +28,10 @@ function renderPage(initialPath = "/applications") {
       <MemoryRouter initialEntries={[initialPath]}>
         <Routes>
           <Route path="/applications" element={<JobApplicationsPage />} />
+          <Route
+            path="/applications/:id"
+            element={<div>Application detail page</div>}
+          />
         </Routes>
       </MemoryRouter>
     </QueryClientProvider>
@@ -87,12 +91,10 @@ describe("JobApplicationsPage", () => {
       screen.getByRole("heading", { name: /job applications/i })
     ).toBeInTheDocument();
 
-    expect(await screen.findByText("Microsoft")).toBeInTheDocument();
-    expect(screen.getByText("Backend Developer")).toBeInTheDocument();
-    expect(screen.getByText("Google")).toBeInTheDocument();
-    expect(screen.getByText("Frontend Developer")).toBeInTheDocument();
-
-    expect(screen.getAllByRole("link", { name: /view/i })).toHaveLength(2);
+    expect(await screen.findAllByText("Microsoft")).not.toHaveLength(0);
+    expect(screen.getAllByText("Backend Developer")).not.toHaveLength(0);
+    expect(screen.getAllByText("Google")).not.toHaveLength(0);
+    expect(screen.getAllByText("Frontend Developer")).not.toHaveLength(0);
   });
 
   it("calls getJobApplications with search filter", async () => {
@@ -100,7 +102,7 @@ describe("JobApplicationsPage", () => {
 
     renderPage();
 
-    await screen.findByText("Microsoft");
+    await screen.findAllByText("Microsoft");
 
     await user.type(screen.getByLabelText(/search/i), "Microsoft");
 
@@ -119,7 +121,7 @@ describe("JobApplicationsPage", () => {
 
     renderPage();
 
-    await screen.findByText("Microsoft");
+    await screen.findAllByText("Microsoft");
 
     await user.selectOptions(screen.getByLabelText(/status/i), "0");
 
@@ -138,7 +140,7 @@ describe("JobApplicationsPage", () => {
 
     renderPage();
 
-    await screen.findByText("Microsoft");
+    await screen.findAllByText("Microsoft");
 
     await user.selectOptions(screen.getByLabelText(/sort by/i), "deadline");
     await user.selectOptions(screen.getByLabelText(/direction/i), "asc");
@@ -157,7 +159,7 @@ describe("JobApplicationsPage", () => {
   it("uses status query parameter from dashboard link", async () => {
     renderPage("/applications?status=0");
 
-    await screen.findByText("Microsoft");
+    await screen.findAllByText("Microsoft");
 
     expect(screen.getByLabelText(/status/i)).toHaveValue("0");
 
@@ -172,17 +174,14 @@ describe("JobApplicationsPage", () => {
     renderPage("/applications?deadline=upcoming&sort=deadline");
 
     expect(
-        await screen.findByText(/showing applications with upcoming deadlines/i)
+      await screen.findByText(/showing applications with upcoming deadlines/i)
     ).toBeInTheDocument();
 
-    expect(
-        await screen.findByRole("cell", { name: /microsoft/i })
-    ).toBeInTheDocument();
-
-    expect(screen.queryByRole("cell", { name: /google/i })).not.toBeInTheDocument();
+    expect(await screen.findAllByText("Microsoft")).not.toHaveLength(0);
+    expect(screen.queryByText("Google")).not.toBeInTheDocument();
 
     expect(screen.getByLabelText(/sort by/i)).toHaveValue("deadline");
-    });
+  });
 
   it("clear filter link returns to applications page", async () => {
     renderPage("/applications?deadline=upcoming&sort=deadline");
@@ -202,7 +201,9 @@ describe("JobApplicationsPage", () => {
 
     renderPage();
 
-    expect(await screen.findByText(/no applications found/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/no applications found/i)
+    ).toBeInTheDocument();
   });
 
   it("renders error state", async () => {
@@ -241,20 +242,23 @@ describe("JobApplicationsPage", () => {
     });
   });
 
-  it("view link points to application detail page", async () => {
+  it("navigates to application detail page when desktop row is clicked", async () => {
+    const user = userEvent.setup();
+
     renderPage();
 
-    await screen.findByText("Microsoft");
+    const microsoftCell = await screen.findByRole("cell", {
+      name: /microsoft/i,
+    });
 
-    const microsoftRow = screen.getByText("Microsoft").closest("tr");
+    const microsoftRow = microsoftCell.closest("tr");
 
     expect(microsoftRow).not.toBeNull();
 
-    const viewLink = within(microsoftRow as HTMLTableRowElement).getByRole(
-      "link",
-      { name: /view/i }
-    );
+    await user.click(microsoftRow as HTMLTableRowElement);
 
-    expect(viewLink).toHaveAttribute("href", "/applications/app-1");
+    expect(
+      await screen.findByText(/application detail page/i)
+    ).toBeInTheDocument();
   });
 });
