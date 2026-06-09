@@ -1,235 +1,350 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { getJobApplications } from "../api/jobApplicationsApi";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { StatusBadge } from "../components/ui/StatusBadge";
+import { formatDate } from "../utils/dateFormat";
+
+const statusLabels: Record<number, string> = {
+  0: "Wishlist",
+  1: "Applied",
+  2: "Online Assessment",
+  3: "Interviewing",
+  4: "Offer",
+  5: "Rejected",
+  6: "Withdrawn",
+};
 
 export function JobApplicationsPage() {
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    const statusParam = searchParams.get("status");
+    const deadlineParam = searchParams.get("deadline");
+    const sortParam = searchParams.get("sort");
+
     const [search, setSearch] = useState("");
-    const [status, setStatus] = useState<number | "">("");
-    const [sortBy, setSortBy] = useState("createdAt");
+    const [status, setStatus] = useState<string>(statusParam ?? "");
+    const [deadlineFilter] = useState<string>(deadlineParam ?? "");
+    const [sortBy, setSortBy] = useState<string>(sortParam === "deadline" ? "deadline" : "createdAt");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
     const [page, setPage] = useState(1);
-    const pageSize = 10;
 
-    const { data, isLoading, isError, error } = useQuery({
-    queryKey: [
-        "jobApplications",
-        search,
-        status,
-        sortBy,
-        sortDirection,
-        page,
-        pageSize,
-    ],
-    queryFn: () =>
-        getJobApplications({
+    const { data, isLoading, isError } = useQuery({
+        queryKey: [
+            "jobApplications",
             search,
             status,
+            deadlineFilter,
             sortBy,
             sortDirection,
             page,
-            pageSize,
+        ],
+        queryFn: () =>
+            getJobApplications({
+                search,
+                status: status ? Number(status) : undefined,
+                sortBy,
+                sortDirection,
+                page,
         }),
     });
 
-    if (isLoading) {
-        return <main className="p-8">
-            <p> Loading applications... </p>
-        </main>
-    }
-
-    if (isError) {
-        return (
-            <main className="p-8">
-                <h1 className="text-2xl font-bold">Job Applications</h1>
-                
-                <p className="mt-4 text-red-600">
-                    Failed to load applications.
-                </p>
-                
-                <pre className="mt-4 rounded bg-slate-100 p-4 text-sm">
-                    {String(error)}
-                </pre>
-        </main>
-        );
-    }
-
     const applications = data?.items ?? [];
 
+    const visibleApplications =
+        deadlineFilter === "upcoming"
+            ? applications.filter((application) => {
+                if (!application.deadline) {
+                    return false;
+                }
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const deadline = new Date(application.deadline);
+                deadline.setHours(0, 0, 0, 0);
+
+                return deadline >= today;
+            })
+            : applications;
+            
     return (
-    <main className="min-h-screen bg-slate-100 p-8">
-        <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex items-center justify-between">
+    <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
+        <div className="mx-auto max-w-6xl space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
                 Job Applications
             </h1>
+
             <p className="mt-2 text-slate-600">
-                Total applications: {data?.totalCount ?? 0}
+                Track and manage your job search pipeline.
             </p>
             </div>
 
-            <Link to="/applications/new">
-            <Button>Add Application</Button>
+            <Link to="/applications/new" className="w-full sm:w-auto">
+                <Button type="button" className="w-full sm:w-auto">
+                Add Application
+                </Button>
             </Link>
         </div>
 
-        <Card className="mb-6">
+        <Card>
             <div className="grid gap-4 md:grid-cols-4">
             <div>
-                <label className="block text-sm font-medium text-slate-700">
+                <label
+                htmlFor="applicationSearch"
+                className="block text-sm font-medium text-slate-700"
+                >
                 Search
                 </label>
+
                 <input
+                id="applicationSearch"
                 value={search}
                 onChange={(event) => {
                     setSearch(event.target.value);
                     setPage(1);
                 }}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="Company, title, location..."
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+                placeholder="Company or job title"
                 />
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700">
+                <label
+                htmlFor="applicationStatus"
+                className="block text-sm font-medium text-slate-700"
+                >
                 Status
                 </label>
+
                 <select
+                id="applicationStatus"
                 value={status}
                 onChange={(event) => {
-                    const value = event.target.value;
-                    setStatus(value === "" ? "" : Number(value));
+                    setStatus(event.target.value);
                     setPage(1);
                 }}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
                 >
                 <option value="">All statuses</option>
-                <option value={0}>Wishlist</option>
-                <option value={1}>Applied</option>
-                <option value={2}>Online Assessment</option>
-                <option value={3}>Interviewing</option>
-                <option value={4}>Offer</option>
-                <option value={5}>Rejected</option>
-                <option value={6}>Withdrawn</option>
+                <option value="0">Wishlist</option>
+                <option value="1">Applied</option>
+                <option value="2">Online Assessment</option>
+                <option value="3">Interviewing</option>
+                <option value="4">Offer</option>
+                <option value="5">Rejected</option>
+                <option value="6">Withdrawn</option>
                 </select>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700">
+                <label
+                htmlFor="applicationSortBy"
+                className="block text-sm font-medium text-slate-700"
+                >
                 Sort By
                 </label>
+
                 <select
+                id="applicationSortBy"
                 value={sortBy}
                 onChange={(event) => {
                     setSortBy(event.target.value);
                     setPage(1);
                 }}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
                 >
-                <option value="createdAt">Created At</option>
-                <option value="company">Company</option>
+                <option value="createdAt">Created Date</option>
+                <option value="companyName">Company Name</option>
                 <option value="jobTitle">Job Title</option>
-                <option value="deadline">Deadline</option>
                 <option value="dateApplied">Date Applied</option>
+                <option value="deadline">Deadline</option>
+                <option value="status">Status</option>
                 </select>
             </div>
 
             <div>
-                <label className="block text-sm font-medium text-slate-700">
+                <label
+                htmlFor="applicationSortDirection"
+                className="block text-sm font-medium text-slate-700"
+                >
                 Direction
                 </label>
+
                 <select
+                id="applicationSortDirection"
                 value={sortDirection}
                 onChange={(event) => {
                     setSortDirection(event.target.value as "asc" | "desc");
                     setPage(1);
                 }}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2"
+                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
                 >
                 <option value="desc">Descending</option>
                 <option value="asc">Ascending</option>
                 </select>
             </div>
             </div>
+
+            {(deadlineFilter === "upcoming" || statusParam) && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
+                <span>
+                {deadlineFilter === "upcoming"
+                    ? "Showing applications with upcoming deadlines."
+                    : `Showing ${
+                        statusLabels[Number(status)] ?? "selected"
+                    } applications.`}
+                </span>
+
+                <Link to="/applications" className="font-medium underline">
+                Clear filter
+                </Link>
+            </div>
+            )}
         </Card>
 
-        {applications.length === 0 ? (
+        {isLoading && (
             <Card>
-            <p className="text-slate-600">
-                No job applications found.
-            </p>
+            <p className="text-slate-600">Loading applications...</p>
             </Card>
-        ) : (
-            <div className="overflow-hidden rounded-2xl bg-white shadow">
-            <table className="w-full border-collapse text-left">
-                <thead className="bg-slate-900 text-white">
-                <tr>
-                    <th className="px-4 py-3">Company</th>
-                    <th className="px-4 py-3">Job Title</th>
-                    <th className="px-4 py-3">Location</th>
-                    <th className="px-4 py-3">Status</th>
-                    <th className="px-4 py-3">Deadline</th>
-                </tr>
-                </thead>
+        )}
 
-                <tbody>
-                {applications.map((application) => (
-                    <tr key={application.id} className="border-b border-slate-200">
-                    <td className="px-4 py-3 font-medium">
-                        <Link
-                        to={`/applications/${application.id}`}
-                        className="hover:underline"
-                        >
-                        {application.companyName}
-                        </Link>
-                    </td>
+        {isError && (
+            <Card>
+            <p className="text-red-600">Failed to load applications.</p>
+            </Card>
+        )}
 
-                    <td className="px-4 py-3">
-                        <Link
-                        to={`/applications/${application.id}`}
-                        className="hover:underline"
-                        >
-                        {application.jobTitle}
-                        </Link>
-                    </td>
+        {!isLoading && !isError && visibleApplications.length === 0 && (
+            <Card>
+            <p className="text-slate-600">No applications found.</p>
+            </Card>
+        )}
 
-                    <td className="px-4 py-3">
-                        {application.location ?? "-"}
-                    </td>
+        {!isLoading && !isError && visibleApplications.length > 0 && (
+            <>
+            <div className="space-y-4 md:hidden">
+                {visibleApplications.map((application) => (
+                    <Link
+                    key={application.id}
+                    to={`/applications/${application.id}`}
+                    className="block focus:outline-none focus:ring-2 focus:ring-slate-400"
+                    >
+                    <Card className="cursor-pointer transition hover:shadow-md">
+                        <div className="flex items-start justify-between gap-3">
+                        <div>
+                            <h2 className="text-lg font-semibold text-slate-900">
+                            {application.companyName}
+                            </h2>
 
-                    <td className="px-4 py-3">
+                            <p className="mt-1 text-sm text-slate-600">
+                            {application.jobTitle}
+                            </p>
+                        </div>
+
                         <StatusBadge status={application.status} />
-                    </td>
+                        </div>
 
-                    <td className="px-4 py-3">
-                        {application.deadline
-                        ? new Date(application.deadline).toLocaleDateString()
-                        : "-"}
-                    </td>
-                    </tr>
+                        <dl className="mt-4 space-y-3 text-sm">
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-medium text-slate-500">Date Applied</dt>
+                            <dd className="text-right text-slate-900">
+                            {formatDate(application.dateApplied)}
+                            </dd>
+                        </div>
+
+                        <div className="flex justify-between gap-4">
+                            <dt className="font-medium text-slate-500">Deadline</dt>
+                            <dd className="text-right text-slate-900">
+                            {formatDate(application.deadline)}
+                            </dd>
+                        </div>
+                        </dl>
+
+                        <p className="mt-4 text-sm font-medium text-slate-900 underline">
+                        View details
+                        </p>
+                    </Card>
+                    </Link>
                 ))}
-                </tbody>
-            </table>
             </div>
+
+            <Card className="hidden overflow-hidden p-0 md:block">
+                <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-center text-sm">
+                    <thead className="bg-slate-800 text-slate-50">
+                    <tr>
+                        <th className="px-4 py-3 font-medium">Company</th>
+                        <th className="px-4 py-3 font-medium">Job Title</th>
+                        <th className="px-4 py-3 font-medium">Status</th>
+                        <th className="px-4 py-3 font-medium">Date Applied</th>
+                        <th className="px-4 py-3 font-medium">Deadline</th>
+                    </tr>
+                    </thead>
+
+                    <tbody className="divide-y divide-slate-100">
+                    {visibleApplications.map((application) => (
+                        <tr
+                        key={application.id}
+                        onClick={() =>
+                            navigate(`/applications/${application.id}`)
+                        }
+                        onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            navigate(`/applications/${application.id}`);
+                            }
+                        }}
+                        tabIndex={0}
+                        role="link"
+                        className="cursor-pointer hover:bg-slate-50 focus:bg-slate-50 focus:outline-none"
+                        >
+                        <td className="px-4 py-3 font-medium text-slate-900">
+                            {application.companyName}
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700">
+                            {application.jobTitle}
+                        </td>
+
+                        <td className="px-4 py-3">
+                            <StatusBadge status={application.status} />
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700">
+                            {formatDate(application.dateApplied)}
+                        </td>
+
+                        <td className="px-4 py-3 text-slate-700">
+                            {formatDate(application.deadline)}
+                        </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
+            </Card>
+            </>
         )}
 
         {data && data.totalPages > 1 && (
-            <Card className="mt-6 flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
             <Button
                 type="button"
                 variant="secondary"
                 disabled={page <= 1}
-                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                onClick={() => setPage((current) => Math.max(current - 1, 1))}
             >
                 Previous
             </Button>
 
             <p className="text-sm text-slate-600">
-                Page {data.page} of {data.totalPages}
+                Page {page} of {data.totalPages}
             </p>
 
             <Button
@@ -237,14 +352,12 @@ export function JobApplicationsPage() {
                 variant="secondary"
                 disabled={page >= data.totalPages}
                 onClick={() =>
-                setPage((current) =>
-                    data ? Math.min(data.totalPages, current + 1) : current + 1
-                )
+                setPage((current) => Math.min(current + 1, data.totalPages))
                 }
             >
                 Next
             </Button>
-            </Card>
+            </div>
         )}
         </div>
     </main>

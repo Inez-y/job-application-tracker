@@ -10,6 +10,13 @@ The project includes a production-style ASP.NET Core backend, PostgreSQL databas
 
 This project was built to demonstrate real-world full-stack engineering practices, including authentication, authorization, relational database modeling, API design, frontend state management, file handling, testing, CI/CD, and containerized development.
 
+### Mobile Demo (v.1.1.0)
+Click the image to watch the demo on youtube.
+[![Mobile demo v.1.1.0](misc/image.png)](https://youtu.be/fIlqxNWOgS4)
+### Web Demo (v.1.1.0)
+[![Web demo v.1.1.0](misc/image-1.png)](https://youtu.be/99ZB_1neGbA)
+
+
 ## Tech Stack
 
 ### Frontend

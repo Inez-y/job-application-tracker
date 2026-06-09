@@ -1,12 +1,13 @@
-using JobTracker.Api.Contracts.JobApplications;
-using JobTracker.Domain.Entities;
-using JobTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using JobTracker.Domain.Entities;
+using JobTracker.Infrastructure.Data;
+using JobTracker.Api.Contracts.JobApplications;
 using JobTracker.Api.Mappers;
 using JobTracker.Api.Contracts.Common;
 using JobTracker.Api.Services;
+using JobTracker.Api.Contracts.StatusHistory;
 
 namespace JobTracker.Api.Controllers;
 
@@ -240,5 +241,66 @@ public class JobApplicationsController : ControllerBase
             .ToListAsync();
 
         return Ok(history);
+    }
+
+    [HttpPut("{id:guid}/status-history/{historyId:guid}")]
+    public async Task<IActionResult> UpdateStatusHistory(
+        Guid id,
+        Guid historyId,
+        UpdateStatusHistoryRequest request)
+    {
+        var userId = _currentUserService.UserId;
+
+        var jobExists = await _dbContext.JobApplications
+            .AnyAsync(x => x.Id == id && x.UserId == userId);
+
+        if (!jobExists)
+        {
+            return NotFound();
+        }
+
+        var history = await _dbContext.ApplicationStatusHistories
+            .FirstOrDefaultAsync(x => x.Id == historyId && x.JobApplicationId == id);
+
+        if (history is null)
+        {
+            return NotFound();
+        }
+
+        history.OldStatus = request.OldStatus;
+        history.NewStatus = request.NewStatus;
+        history.ChangedAt = request.ChangedAt;
+
+        await _dbContext.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:guid}/status-history/{historyId:guid}")]
+    public async Task<IActionResult> DeleteStatusHistory(Guid id, Guid historyId)
+    {
+        var userId = _currentUserService.UserId;
+
+        var jobExists = await _dbContext.JobApplications
+            .AnyAsync(x => x.Id == id && x.UserId == userId);
+
+        if (!jobExists)
+        {
+            return NotFound();
+        }
+
+        var history = await _dbContext.ApplicationStatusHistories
+            .FirstOrDefaultAsync(x => x.Id == historyId && x.JobApplicationId == id);
+
+        if (history is null)
+        {
+            return NotFound();
+        }
+
+        _dbContext.ApplicationStatusHistories.Remove(history);
+
+        await _dbContext.SaveChangesAsync();
+
+        return NoContent();
     }
 }

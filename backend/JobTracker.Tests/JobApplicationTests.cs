@@ -34,6 +34,15 @@ public class JobApplicationTests : IClassFixture<CustomWebApplicationFactory>
         public string JobTitle { get; set; } = string.Empty;
     }
 
+    private class StatusHistoryTestResponse
+    {
+        public Guid Id { get; set; }
+        public Guid JobApplicationId { get; set; }
+        public int OldStatus { get; set; }
+        public int NewStatus { get; set; }
+        public DateTime ChangedAt { get; set; }
+    }
+
     private async Task<JobApplicationTestResponse> CreateJobApplicationAsync(string accessToken)
     {
         _client.DefaultRequestHeaders.Authorization =
@@ -124,9 +133,9 @@ public class JobApplicationTests : IClassFixture<CustomWebApplicationFactory>
         _client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", userBToken);
 
-        var respnose = await _client.GetAsync($"/api/job-applications/{userAJob.Id}");
+        var response = await _client.GetAsync($"/api/job-applications/{userAJob.Id}");
 
-        respnose.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]
@@ -201,5 +210,219 @@ public class JobApplicationTests : IClassFixture<CustomWebApplicationFactory>
         var response = await _client.PostAsJsonAsync("/api/job-applications", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private async Task<List<StatusHistoryTestResponse>> GetStatusHistoryAsync(
+        string accessToken,
+        Guid jobApplicationId)
+    {
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await _client.GetAsync(
+            $"/api/job-applications/{jobApplicationId}/status-history"
+        );
+
+        response.EnsureSuccessStatusCode();
+
+        var body = await response.Content
+            .ReadFromJsonAsync<List<StatusHistoryTestResponse>>();
+
+        return body!;
+    }
+
+    [Fact]
+    public async Task UpdateStatusHistory_WithOwnerToken_ShouldReturnNoContent()
+    {
+        var token = await RegisterAndGetAccessTokenAsync();
+
+        var job = await CreateJobApplicationAsync(token);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        var updateJobRequest = new
+        {
+            companyName = "Microsoft",
+            jobTitle = "Backend Developer",
+            location = "Vancouver",
+            jobUrl = "https://example.com/job",
+            status = 3,
+            dateApplied = DateTime.UtcNow,
+            deadline = DateTime.UtcNow.AddDays(14),
+            salaryRange = "$30-$40/hr",
+            notes = "Moved to interviewing."
+        };
+
+        var updateJobResponse = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{job.Id}",
+            updateJobRequest
+        );
+
+        updateJobResponse.EnsureSuccessStatusCode();
+
+        var history = await GetStatusHistoryAsync(token, job.Id);
+
+        history.Should().NotBeEmpty();
+
+        var historyItem = history[0];
+
+        var updateHistoryRequest = new
+        {
+            oldStatus = 1,
+            newStatus = 4,
+            changedAt = DateTime.UtcNow
+        };
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{job.Id}/status-history/{historyItem.Id}",
+            updateHistoryRequest
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+
+    [Fact]
+    public async Task DeleteStatusHistory_WithOwnerToken_ShouldReturnNoContent()
+    {
+        var token = await RegisterAndGetAccessTokenAsync();
+
+        var job = await CreateJobApplicationAsync(token);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+
+        var updateJobRequest = new
+        {
+            companyName = "Microsoft",
+            jobTitle = "Backend Developer",
+            location = "Vancouver",
+            jobUrl = "https://example.com/job",
+            status = 3,
+            dateApplied = DateTime.UtcNow,
+            deadline = DateTime.UtcNow.AddDays(14),
+            salaryRange = "$30-$40/hr",
+            notes = "Moved to interviewing."
+        };
+
+        var updateJobResponse = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{job.Id}",
+            updateJobRequest
+        );
+
+        updateJobResponse.EnsureSuccessStatusCode();
+
+        var history = await GetStatusHistoryAsync(token, job.Id);
+
+        history.Should().NotBeEmpty();
+
+        var historyItem = history[0];
+
+        var response = await _client.DeleteAsync(
+            $"/api/job-applications/{job.Id}/status-history/{historyItem.Id}"
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        var updatedHistory = await GetStatusHistoryAsync(token, job.Id);
+
+        updatedHistory.Should().NotContain(x => x.Id == historyItem.Id);
+    }
+
+    [Fact]
+    public async Task UpdateStatusHistory_UserCannotUpdateAnotherUsersStatusHistory()
+    {
+        var userAToken = await RegisterAndGetAccessTokenAsync();
+        var userBToken = await RegisterAndGetAccessTokenAsync();
+
+        var userAJob = await CreateJobApplicationAsync(userAToken);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userAToken);
+
+        var updateJobRequest = new
+        {
+            companyName = "Microsoft",
+            jobTitle = "Backend Developer",
+            location = "Vancouver",
+            jobUrl = "https://example.com/job",
+            status = 3,
+            dateApplied = DateTime.UtcNow,
+            deadline = DateTime.UtcNow.AddDays(14),
+            salaryRange = "$30-$40/hr",
+            notes = "Moved to interviewing."
+        };
+
+        var updateJobResponse = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{userAJob.Id}",
+            updateJobRequest
+        );
+
+        updateJobResponse.EnsureSuccessStatusCode();
+
+        var history = await GetStatusHistoryAsync(userAToken, userAJob.Id);
+        var historyItem = history[0];
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userBToken);
+
+        var updateHistoryRequest = new
+        {
+            oldStatus = 1,
+            newStatus = 4,
+            changedAt = DateTime.UtcNow
+        };
+
+        var response = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{userAJob.Id}/status-history/{historyItem.Id}",
+            updateHistoryRequest
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task DeleteStatusHistory_UserCannotDeleteAnotherUsersStatusHistory()
+    {
+        var userAToken = await RegisterAndGetAccessTokenAsync();
+        var userBToken = await RegisterAndGetAccessTokenAsync();
+
+        var userAJob = await CreateJobApplicationAsync(userAToken);
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userAToken);
+
+        var updateJobRequest = new
+        {
+            companyName = "Microsoft",
+            jobTitle = "Backend Developer",
+            location = "Vancouver",
+            jobUrl = "https://example.com/job",
+            status = 3,
+            dateApplied = DateTime.UtcNow,
+            deadline = DateTime.UtcNow.AddDays(14),
+            salaryRange = "$30-$40/hr",
+            notes = "Moved to interviewing."
+        };
+
+        var updateJobResponse = await _client.PutAsJsonAsync(
+            $"/api/job-applications/{userAJob.Id}",
+            updateJobRequest
+        );
+
+        updateJobResponse.EnsureSuccessStatusCode();
+
+        var history = await GetStatusHistoryAsync(userAToken, userAJob.Id);
+        var historyItem = history[0];
+
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", userBToken);
+
+        var response = await _client.DeleteAsync(
+            $"/api/job-applications/{userAJob.Id}/status-history/{historyItem.Id}"
+        );
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 }
