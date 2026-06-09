@@ -1,30 +1,25 @@
-import { Link, useParams } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import {
-  getJobApplicationById,
-  getStatusHistory,
-} from "../api/jobApplicationsApi";
+import { deleteJobApplication, getJobApplicationById } from "../api/jobApplicationsApi";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { StatusBadge } from "../components/ui/StatusBadge";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { ApplicationNotesSection } from "../features/jobApplications/ApplicationNotesSection";
 import { InterviewsSection } from "../features/jobApplications/InterviewsSection";
 import { RemindersSection } from "../features/jobApplications/RemindersSection";
 import { DocumentsSection } from "../features/jobApplications/DocumentsSection";
+import { StatusHistorySection } from "../features/jobApplications/StatusHistorySection";
 import { EmailTemplatePreviewSection } from "../features/jobApplications/EmailTemplatePreviewSection";
-
-const statusLabels: Record<number, string> = {
-  0: "Wishlist",
-  1: "Applied",
-  2: "Online Assessment",
-  3: "Interviewing",
-  4: "Offer",
-  5: "Rejected",
-  6: "Withdrawn",
-};
+import { formatDate } from "../utils/dateFormat";
 
 export function JobApplicationDetailPage() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [serverError, setServerError] = useState<string | null>(null);
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ["jobApplication", id],
@@ -32,14 +27,24 @@ export function JobApplicationDetailPage() {
         enabled: Boolean(id),
     });
 
-    const {
-        data: statusHistory,
-        isLoading: isStatusHistoryLoading,
-        } = useQuery({
-        queryKey: ["statusHistory", id],
-        queryFn: () => getStatusHistory(id!),
-        enabled: Boolean(id),
-    });
+    async function handleDelete() {
+        if (!id) {
+          return;
+        }
+    
+        setServerError(null);
+        setIsDeleting(true);
+    
+        try {
+          await deleteJobApplication(id);
+          navigate("/applications");
+        } catch {
+          setServerError("Failed to delete job application.");
+        } finally {
+          setIsDeleting(false);
+          setIsDeleteDialogOpen(false);
+        }
+    }
 
     if (isLoading) {
         return <main className="p-8"> Loading application... </main>
@@ -49,7 +54,6 @@ export function JobApplicationDetailPage() {
         return (
             <main className="p-8">
                 <p className="text-red-600">Failed to load application.</p>
-                
                 <Link to="/applications" className="mt-4 inline-block underline">
                     Back to applications
                 </Link>
@@ -58,67 +62,82 @@ export function JobApplicationDetailPage() {
     }
 
     return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-slate-100 p-4 sm:p-8">
         <div className="mx-auto max-w-4xl space-y-6">
         <Card>
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <Link to="/applications" className="text-sm text-slate-600 underline">
                 Back to applications
             </Link>
 
-            <Link to={`/applications/${data.id}/edit`}>
-                <Button type="button">Edit</Button>
-            </Link>
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
+                <Link to={`/applications/${data.id}/edit`} className="w-full sm:w-auto">
+                <Button type="button" variant="secondary" className="w-full sm:w-auto">
+                    Edit
+                </Button>
+                </Link>
+
+                <Button
+                type="button"
+                variant="danger"
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className="w-full sm:w-auto"
+                >
+                Delete
+                </Button>
+            </div>
             </div>
 
             <div className="mt-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                <h1 className="text-3xl font-bold text-slate-900">
+                <h1 className="break-words text-2xl font-bold text-slate-900 sm:text-3xl">
                     {data.jobTitle}
                 </h1>
 
-                <p className="mt-2 text-xl text-slate-700">
+                <p className="mt-2 break-words text-lg text-slate-700 sm:text-xl">
                     {data.companyName}
                 </p>
                 </div>
 
+                <div className="self-start">
                 <StatusBadge status={data.status} />
+                </div>
             </div>
             </div>
 
             <dl className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Location</dt>
-                <dd className="mt-1 text-slate-900">{data.location ?? "-"}</dd>
+                <dd className="mt-1 break-words text-slate-900">
+                {data.location ?? "-"}
+                </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Date Applied</dt>
                 <dd className="mt-1 text-slate-900">
-                {data.dateApplied
-                    ? new Date(data.dateApplied).toLocaleDateString()
-                    : "-"}
+                {formatDate(data.dateApplied)}
                 </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Deadline</dt>
                 <dd className="mt-1 text-slate-900">
-                {data.deadline
-                    ? new Date(data.deadline).toLocaleDateString()
-                    : "-"}
+                {formatDate(data.deadline)}
                 </dd>
             </div>
 
-            <div>
+            <div className="rounded-lg bg-slate-50 p-4">
                 <dt className="text-sm font-medium text-slate-500">Salary Range</dt>
-                <dd className="mt-1 text-slate-900">{data.salaryRange ?? "-"}</dd>
+                <dd className="mt-1 break-words text-slate-900">
+                {data.salaryRange ?? "-"}
+                </dd>
             </div>
 
-            <div className="sm:col-span-2">
+            <div className="rounded-lg bg-slate-50 p-4 sm:col-span-2">
                 <dt className="text-sm font-medium text-slate-500">Job URL</dt>
-                <dd className="mt-1">
+                <dd className="mt-1 break-words">
                 {data.jobUrl ? (
                     <a
                     href={data.jobUrl}
@@ -138,36 +157,20 @@ export function JobApplicationDetailPage() {
             <div className="mt-8">
             <h2 className="text-lg font-semibold text-slate-900">Notes</h2>
 
-            <p className="mt-2 whitespace-pre-wrap text-slate-700">
+            <p className="mt-2 whitespace-pre-wrap wrap-break-word text-slate-700">
                 {data.notes || "No notes yet."}
             </p>
             </div>
         </Card>
 
-        <Card>
-            <h2 className="text-lg font-semibold text-slate-900">Status History</h2>
+        {serverError && (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            {serverError}
+            </p>
+        )}
 
-            {isStatusHistoryLoading ? (
-            <p className="mt-2 text-slate-600">Loading status history...</p>
-            ) : !statusHistory || statusHistory.length === 0 ? (
-            <p className="mt-2 text-slate-600">No status changes yet.</p>
-            ) : (
-            <div className="mt-4 space-y-3">
-                {statusHistory.map((item) => (
-                <div
-                    key={item.id}
-                    className="rounded-lg border border-slate-200 bg-slate-50 p-4"
-                >
-                    <p className="font-medium text-slate-900">
-                    {statusLabels[item.oldStatus]} → {statusLabels[item.newStatus]}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600">
-                    {new Date(item.changedAt).toLocaleString()}
-                    </p>
-                </div>
-                ))}
-            </div>
-            )}
+        <Card>
+            <StatusHistorySection jobApplicationId={data.id} />
         </Card>
 
         <Card>
@@ -190,6 +193,16 @@ export function JobApplicationDetailPage() {
             <EmailTemplatePreviewSection jobApplicationId={data.id} />
         </Card>
         </div>
+
+        <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        title="Delete job application?"
+        description="This will permanently delete this job application and its related notes, interviews, reminders, and documents. This action cannot be undone."
+        confirmLabel="Delete application"
+        isLoading={isDeleting}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        />
     </main>
     );
 }

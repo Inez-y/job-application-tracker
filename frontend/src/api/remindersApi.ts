@@ -22,6 +22,19 @@ export async function createReminder(
     return response.data;
 }
 
+export async function updateReminder(
+  jobApplicationId: string,
+  reminderId: string,
+  request: CreateReminderRequest
+): Promise<Reminder> {
+  const response = await axiosClient.put<Reminder>(
+    `/api/job-applications/${jobApplicationId}/reminders/${reminderId}`,
+    request
+  );
+
+  return response.data;
+}
+
 export async function markReminderComplete(
     jobApplicationId: string,
     reminderId: string

@@ -9,6 +9,7 @@ import { JobApplicationDetailPage } from "../pages/JobApplicationDetailPage";
 import { EditJobApplicationPage } from "../pages/EditJobApplicationPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { EmailTemplatesPage } from "../pages/EmailTemplatesPage";
+import { ProfilePage } from "../pages/ProfilePage";
 
 export function AppRouter() {
   return (
@@ -20,6 +21,7 @@ export function AppRouter() {
         
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/applications" element={<JobApplicationsPage />} />
             <Route path="/applications/new" element={<CreateJobApplicationPage />} />

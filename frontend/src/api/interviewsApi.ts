@@ -20,6 +20,17 @@ export async function createInterview(jobApplicationId: string, request: CreateI
   return response.data;
 }
 
+export async function updateInterview(
+  jobApplicationId: string, interviewId: string, request:CreateInterviewRequest
+): Promise<Interview> {
+  const response = await axiosClient.put<Interview>(
+    `/api/job-applications/${jobApplicationId}/interviews/${interviewId}`,
+    request
+  );
+
+  return response.data;
+}
+
 export async function deleteInterview(jobApplicationId: string, interviewId: string
 ): Promise<void> {
   await axiosClient.delete(

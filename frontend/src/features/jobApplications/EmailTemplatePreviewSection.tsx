@@ -9,6 +9,7 @@ type Props = { jobApplicationId: string; };
 
 export function EmailTemplatePreviewSection({ jobApplicationId }: Props) {
     const [selectedTemplateId, setSelectedTemplateId] = useState("");
+    const [copyMessage, setCopyMessage] = useState<string | null>(null);
 
     const {
         data: templates,
@@ -29,8 +30,24 @@ export function EmailTemplatePreviewSection({ jobApplicationId }: Props) {
         enabled: Boolean(selectedTemplateId),
     });
 
-return (
-    <section className="mt-8">
+    async function handleCopyToClipboard() {
+        if (!preview) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(
+            `Subject: ${preview.subject}\n\n${preview.body}`
+            );
+
+            setCopyMessage("Template copied to clipboard.");
+        } catch {
+            setCopyMessage("Failed to copy template. Please try again.");
+        }
+    }
+
+    return (
+    <section className="">
         <h2 className="text-lg font-semibold text-slate-900">
             Email Template Preview
         </h2>
@@ -54,13 +71,19 @@ return (
 
             {templates && templates.length > 0 && (
             <div>
-                <label className="block text-sm font-medium text-slate-700">
+                <label 
+                htmlFor="emailTemplatePreviewSelect"
+                className="block text-sm font-medium text-slate-700">
                     Choose Template
                 </label>
 
                 <select
+                id="emailTemplatePreviewSelect"
                 value={selectedTemplateId}
-                onChange={(event) => setSelectedTemplateId(event.target.value)}
+                onChange={(event) => {
+                    setSelectedTemplateId(event.target.value);
+                    setCopyMessage(null);
+                }}
                 className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2"
                 >
                 <option value=""> Select a template </option>
@@ -99,15 +122,22 @@ return (
 
                 <button
                 type="button"
-                onClick={() => {
-                    navigator.clipboard.writeText(
-                    `Subject: ${preview.subject}\n\n${preview.body}`
-                    );
-                }}
+                onClick={handleCopyToClipboard}
                 className="mt-4 rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
                 >
-                C   opy to Clipboard
+                    Copy to Clipboard
                 </button>
+
+                {copyMessage && (
+                    <p
+                        id="copyMessage"
+                        className={`mt-2 text-sm ${
+                        copyMessage.startsWith("Failed") ? "text-red-600" : "text-green-700"
+                        }`}
+                    >
+                        {copyMessage}
+                    </p>
+                )}
             </div>
             )}
         </div>

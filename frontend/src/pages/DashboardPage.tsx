@@ -50,52 +50,61 @@ export function DashboardPage() {
   }
 
   const statusCounts = [
-    ["wishlistCount", stats.wishlistCount],
-    ["appliedCount", stats.appliedCount],
-    ["onlineAssessmentCount", stats.onlineAssessmentCount],
-    ["interviewingCount", stats.interviewingCount],
-    ["offerCount", stats.offerCount],
-    ["rejectedCount", stats.rejectedCount],
-    ["withdrawnCount", stats.withdrawnCount],
+    ["wishlistCount", stats.wishlistCount, 0],
+    ["appliedCount", stats.appliedCount, 1],
+    ["onlineAssessmentCount", stats.onlineAssessmentCount, 2],
+    ["interviewingCount", stats.interviewingCount, 3],
+    ["offerCount", stats.offerCount, 4],
+    ["rejectedCount", stats.rejectedCount, 5],
+    ["withdrawnCount", stats.withdrawnCount, 6],
   ] as const;
 
   return (
     <main className="min-h-screen bg-slate-100 p-8">
       <div className="mx-auto max-w-6xl">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="space-y-4 m-2">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900 xm:text-2xl">Dashboard</h1>
             <p className="mt-2 text-slate-600">
               Overview of your job search activity.
             </p>
           </div>
 
-          <Link to="/applications/new">
-            <Button type="button">Add Application</Button>
+          <Link to="/applications/new" className="block sm:inline-block">
+            <Button type="button" className="w-full sm:w-auto">Add Application</Button>
           </Link>
         </div>
 
         <section className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <p className="text-sm text-slate-500">Total Applications</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {stats.totalApplications}
-            </p>
-          </Card>
+          <Link to="/applications" className="block">
+            <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+              <p className="text-sm text-slate-500">Total Applications</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">
+                {stats.totalApplications}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">View all applications</p>
+            </Card>
+          </Link>
 
-          <Card>
-            <p className="text-sm text-slate-500">Upcoming Deadlines</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {stats.upcomingDeadlineCount}
-            </p>
-          </Card>
+          <Link to="/applications?deadline=upcoming&sort=deadline" className="block">
+            <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+              <p className="text-sm text-slate-500">Upcoming Deadlines</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">
+                {stats.upcomingDeadlineCount}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">View upcoming deadlines</p>
+            </Card>
+          </Link>
 
-          <Card>
-            <p className="text-sm text-slate-500">Upcoming Reminders</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">
-              {reminders?.length ?? 0}
-            </p>
-          </Card>
+          <Link to="/applications?reminders=upcoming" className="block">
+            <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
+              <p className="text-sm text-slate-500">Upcoming Reminders</p>
+              <p className="mt-2 text-3xl font-bold text-slate-900">
+                {reminders?.length ?? 0}
+              </p>
+              <p className="mt-2 text-sm text-slate-500">View reminder details</p>
+            </Card>
+          </Link>
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -105,14 +114,15 @@ export function DashboardPage() {
             </h2>
 
             <div className="mt-4 space-y-3">
-              {statusCounts.map(([key, count]) => (
-                <div
+              {statusCounts.map(([key, count, status]) => (
+                <Link
                   key={key}
-                  className="flex items-center justify-between border-b border-slate-100 pb-2"
+                  to={`/applications?status=${status}`}
+                  className="flex items-center justify-between border-b border-slate-100 pb-2 hover:text-slate-900"
                 >
                   <span className="text-slate-700">{statusLabels[key]}</span>
                   <span className="font-semibold text-slate-900">{count}</span>
-                </div>
+                </Link>
               ))}
             </div>
           </Card>
@@ -212,7 +222,7 @@ export function DashboardPage() {
 
         <div className="mt-6">
           <Link to="/applications">
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" className="w-full">
               View all applications
             </Button>
           </Link>
