@@ -9,6 +9,7 @@ import { ApplicationTrendChart } from "../features/dashboard/ApplicationTrendCha
 import { ApplicationSourceChart } from "../features/dashboard/ApplicationSourceChart";
 import { InterviewFunnelChart } from "../features/dashboard/InterviewFunnelChart";
 import { ApplicationConversionChart } from "../features/dashboard/ApplicationConversionChart";
+import { ApplicationOutcomesChart } from "../features/dashboard/ApplicationOutcomesChart";
 
 const statusLabels: Record<string, string> = {
   wishlistCount: "Wishlist",
@@ -116,17 +117,6 @@ export function DashboardPage() {
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-3">
-          <ApplicationTrendChart data={stats.applicationTrend} />
-          <ApplicationConversionChart data={stats.conversionRates} />
-          <InterviewFunnelChart
-            wishlistCount={stats.wishlistCount}
-            appliedCount={stats.appliedCount}
-            onlineAssessmentCount={stats.onlineAssessmentCount}
-            interviewingCount={stats.interviewingCount}
-            offerCount={stats.offerCount}
-          />
-
-          <ApplicationSourceChart data={stats.applicationSourceCounts} />
           {stats && (
               <ApplicationStatusChart
                 wishlistCount={stats.wishlistCount}
@@ -138,6 +128,27 @@ export function DashboardPage() {
                 withdrawnCount={stats.withdrawnCount}
               />
           )}
+          <ApplicationOutcomesChart
+            wishlistCount={stats.wishlistCount}
+            appliedCount={stats.appliedCount}
+            onlineAssessmentCount={stats.onlineAssessmentCount}
+            interviewingCount={stats.interviewingCount}
+            offerCount={stats.offerCount}
+            rejectedCount={stats.rejectedCount}
+            withdrawnCount={stats.withdrawnCount}
+          />
+          <ApplicationSourceChart data={stats.applicationSourceCounts} />
+
+          <ApplicationTrendChart data={stats.applicationTrend} />
+          <ApplicationConversionChart data={stats.conversionRates} />
+          {/* <InterviewFunnelChart
+            wishlistCount={stats.wishlistCount}
+            appliedCount={stats.appliedCount}
+            onlineAssessmentCount={stats.onlineAssessmentCount}
+            interviewingCount={stats.interviewingCount}
+            offerCount={stats.offerCount}
+          /> */}
+
           <ReminderCompletionChart
                 completedCount={stats.completedReminderCount}
                 pendingCount={stats.pendingReminderCount}
