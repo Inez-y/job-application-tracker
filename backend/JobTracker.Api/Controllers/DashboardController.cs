@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using JobTracker.Api.Contracts.Dashboard;
 using JobTracker.Api.Services;
 using JobTracker.Domain.Entities;
@@ -36,9 +35,45 @@ public class DashboardController : ControllerBase
 
         var now = DateTime.UtcNow;
         var nextSevenDays = now.AddDays(7);
+        var sixMonthsAgo = new DateTime(
+                now.Year,
+                now.Month,
+                1,
+                0,
+                0,
+                0,
+                DateTimeKind.Utc
+            ).AddMonths(-5);
 
         var reminders = _dbContext.Reminders
             .Where(x => x.JobApplication.UserId == userId);
+
+        var applicationTrendRaw = await applications
+            .Where(x =>
+                x.DateApplied != null &&
+                x.DateApplied >= sixMonthsAgo)
+            .GroupBy(x => new
+            {
+                x.DateApplied!.Value.Year,
+                x.DateApplied!.Value.Month
+            })
+            .Select(g => new
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                Count = g.Count()
+            })
+            .OrderBy(x => x.Year)
+            .ThenBy(x => x.Month)
+            .ToListAsync();
+
+        var applicationTrend = applicationTrendRaw
+            .Select(x => new ApplicationTrendResponse
+            {
+                Month = $"{x.Year}-{x.Month:D2}",
+                Count = x.Count
+            })
+            .ToList();
 
         var response = new DashboardStatsResponse
         {
@@ -51,8 +86,9 @@ public class DashboardController : ControllerBase
             OfferCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Offer),
             RejectedCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Rejected),
             WithdrawnCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Withdrawn),
-                CompletedReminderCount = await reminders.CountAsync(x => x.IsCompleted),
-    PendingReminderCount = await reminders.CountAsync(x => !x.IsCompleted),
+            CompletedReminderCount = await reminders.CountAsync(x => x.IsCompleted),
+            PendingReminderCount = await reminders.CountAsync(x => !x.IsCompleted),
+            ApplicationTrend = applicationTrend,
 
             UpcomingDeadlineCount = await applications.CountAsync(x =>
                 x.Deadline != null &&

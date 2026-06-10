@@ -5,6 +5,7 @@ import { Card } from "../components/ui/Card";
 import { getDashboardStats, getUpcomingReminders } from "../api/dashboardApi";
 import { ApplicationStatusChart } from "../features/dashboard/ApplicationStatusChart";
 import { ReminderCompletionChart } from "../features/dashboard/ReminderCompletionChart";
+import { ApplicationTrendChart } from "../features/dashboard/ApplicationTrendChart";
 
 const statusLabels: Record<string, string> = {
   wishlistCount: "Wishlist",
@@ -61,12 +62,14 @@ export function DashboardPage() {
     ["withdrawnCount", stats.withdrawnCount, 6],
   ] as const;
 
+  const upcomingReminderCount = reminders?.length ?? 0;
+
   return (
     <main className="min-h-screen bg-slate-100 p-8">
       <div className="mx-auto max-w-6xl">
         <div className="space-y-4 m-2">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 xm:text-2xl">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-slate-900 xm:text-3xl">Dashboard</h1>
             <p className="mt-2 text-slate-600">
               Overview of your job search activity.
             </p>
@@ -102,11 +105,13 @@ export function DashboardPage() {
             <Card className="transition hover:-translate-y-0.5 hover:shadow-md">
               <p className="text-sm text-slate-500">Upcoming Reminders</p>
               <p className="mt-2 text-3xl font-bold text-slate-900">
-                {reminders?.length ?? 0}
+                {upcomingReminderCount}
               </p>
               <p className="mt-2 text-sm text-slate-500">View reminder details</p>
             </Card>
           </Link>
+
+          <ApplicationTrendChart data={stats.applicationTrend} />
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">

@@ -15,6 +15,11 @@ export type UpcomingDeadline = {
   deadline: string | null;
 };
 
+export type ApplicationTrendResponse = {
+  month: string;
+  count: number;
+};
+
 export type DashboardStats = {
   totalApplications: number;
   wishlistCount: number;
@@ -29,5 +34,6 @@ export type DashboardStats = {
   pendingReminderCount: number;
   recentApplications: RecentApplication[];
   upcomingDeadlines: UpcomingDeadline[];
+  applicationTrend: ApplicationTrendResponse[];
 };
 

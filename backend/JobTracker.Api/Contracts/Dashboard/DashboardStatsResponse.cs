@@ -17,6 +17,7 @@ public class DashboardStatsResponse
     public int PendingReminderCount { get; set; }
     public List<RecentApplicationResponse> RecentApplications { get; set; } = new();
     public List<UpcomingDeadlineResponse> UpcomingDeadlines { get; set; } = new();
+    public List<ApplicationTrendResponse> ApplicationTrend { get; set; } = new();
 }
 
 public class RecentApplicationResponse
@@ -34,4 +35,10 @@ public class UpcomingDeadlineResponse
     public string CompanyName { get; set; } = string.Empty;
     public string JobTitle { get; set; } = string.Empty;
     public DateTime? Deadline { get; set; }
+}
+
+public sealed class ApplicationTrendResponse
+{
+    public string Month { get; set; } = string.Empty;
+    public int Count { get; set; }
 }
