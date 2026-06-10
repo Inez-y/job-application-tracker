@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppLayout } from "../components/layout/AppLayout";
+import { ScrollToTop } from "../components/layout/ScrollToTop";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LoginPage } from "../pages/LoginPage";
@@ -14,6 +15,7 @@ import { ProfilePage } from "../pages/ProfilePage";
 export function AppRouter() {
   return (
     <BrowserRouter>
+    <ScrollToTop />
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/register" element={<RegisterPage />} />
