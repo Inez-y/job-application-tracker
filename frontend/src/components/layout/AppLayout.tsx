@@ -77,6 +77,20 @@ export function AppLayout() {
                     </NavLink>
 
                     <NavLink
+                      to="/calendar"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={({ isActive }) =>
+                        `block rounded-lg px-3 py-2 text-sm ${
+                          isActive
+                            ? "bg-slate-100 font-medium text-slate-900"
+                            : "text-slate-700 hover:bg-slate-50"
+                        }`
+                      }
+                    >
+                      Calendar
+                    </NavLink>
+
+                    <NavLink
                       to="/email-templates"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={({ isActive }) =>
@@ -120,6 +134,19 @@ export function AppLayout() {
                 Applications
               </NavLink>
 
+              <NavLink
+                to="/calendar"
+                className={({ isActive }) =>
+                  `hidden md:inline ${
+                    isActive
+                      ? "font-medium text-slate-900"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`
+                }
+              >
+                Calendar
+              </NavLink>
+              
               <NavLink
                 to="/email-templates"
                 className={({ isActive }) =>

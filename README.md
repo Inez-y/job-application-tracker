@@ -1061,7 +1061,6 @@ Add role-based authorization
 Add audit logging
 Add OpenAPI examples
 Add seed/demo data
-Add calendar view for interviews and reminders
 Add Google Calendar integration
 Add email provider integration
 Add full text search
