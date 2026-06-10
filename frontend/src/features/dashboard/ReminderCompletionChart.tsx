@@ -50,9 +50,23 @@ export function ReminderCompletionChart({
                 innerRadius={55}
                 outerRadius={90}
                 paddingAngle={4}
-                label={({ name, percent }) =>
-                  `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
-                }
+                labelLine={false}
+                label={({ name, percent, x, y }) => (
+                  <text
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="fill-slate-700 text-xs"
+                  >
+                    <tspan x={x} dy="-0.4em">
+                      {name}
+                    </tspan>
+                    <tspan x={x} dy="1.2em">
+                      {`${((percent ?? 0) * 100).toFixed(0)}%`}
+                    </tspan>
+                  </text>
+                )}
               >
                 {data.map((entry, index) => (
                   <Cell

@@ -7,6 +7,8 @@ import { ApplicationStatusChart } from "../features/dashboard/ApplicationStatusC
 import { ReminderCompletionChart } from "../features/dashboard/ReminderCompletionChart";
 import { ApplicationTrendChart } from "../features/dashboard/ApplicationTrendChart";
 import { ApplicationSourceChart } from "../features/dashboard/ApplicationSourceChart";
+import { InterviewFunnelChart } from "../features/dashboard/InterviewFunnelChart";
+import { ApplicationConversionChart } from "../features/dashboard/ApplicationConversionChart";
 
 const statusLabels: Record<string, string> = {
   wishlistCount: "Wishlist",
@@ -113,8 +115,17 @@ export function DashboardPage() {
           </Link>
         </section>
 
-        <section className="mt-6 grid gap-6 lg:grid-cols-2">
+        <section className="mt-6 grid gap-6 lg:grid-cols-3">
           <ApplicationTrendChart data={stats.applicationTrend} />
+          <ApplicationConversionChart data={stats.conversionRates} />
+          <InterviewFunnelChart
+            wishlistCount={stats.wishlistCount}
+            appliedCount={stats.appliedCount}
+            onlineAssessmentCount={stats.onlineAssessmentCount}
+            interviewingCount={stats.interviewingCount}
+            offerCount={stats.offerCount}
+          />
+
           <ApplicationSourceChart data={stats.applicationSourceCounts} />
           {stats && (
               <ApplicationStatusChart
@@ -131,6 +142,7 @@ export function DashboardPage() {
                 completedCount={stats.completedReminderCount}
                 pendingCount={stats.pendingReminderCount}
           />
+          
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">

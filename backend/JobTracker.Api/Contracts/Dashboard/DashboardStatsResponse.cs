@@ -19,6 +19,7 @@ public class DashboardStatsResponse
     public List<UpcomingDeadlineResponse> UpcomingDeadlines { get; set; } = new();
     public List<ApplicationTrendResponse> ApplicationTrend { get; set; } = new();
     public List<ApplicationSourceCountResponse> ApplicationSourceCounts { get; set; } = new();
+    public List<ApplicationConversionRateResponse> ConversionRates { get; set; } = new();
 }
 
 public class RecentApplicationResponse

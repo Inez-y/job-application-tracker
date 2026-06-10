@@ -25,6 +25,15 @@ export type ApplicationSourceCount = {
   count: number;
 };
 
+export type ApplicationConversionRate = {
+  fromStatus: number;
+  toStatus: number;
+  label: string;
+  fromCount: number;
+  toCount: number;
+  rate: number;
+};
+
 export type DashboardStats = {
   totalApplications: number;
   wishlistCount: number;
@@ -41,5 +50,5 @@ export type DashboardStats = {
   upcomingDeadlines: UpcomingDeadline[];
   applicationTrend: ApplicationTrendResponse[];
   applicationSourceCounts: ApplicationSourceCount[];
+  conversionRates: ApplicationConversionRate[];
 };
-

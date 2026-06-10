@@ -85,6 +85,100 @@ public class DashboardController : ControllerBase
             .OrderByDescending(x => x.Count)
             .ToListAsync();
 
+        var userApplications = await applications
+            .Select(x => new
+            {
+                x.Id,
+                x.Status
+            })
+            .ToListAsync();
+
+        var applicationIds = userApplications
+            .Select(x => x.Id)
+            .ToList();
+
+        var statusHistories = await _dbContext.ApplicationStatusHistories
+            .Where(x => applicationIds.Contains(x.JobApplicationId))
+            .Select(x => new
+            {
+                x.JobApplicationId,
+                x.OldStatus,
+                x.NewStatus
+            })
+            .ToListAsync();
+
+        var reachedStatusesByApplication = userApplications
+            .ToDictionary(
+        application => application.Id,
+        application => new HashSet<ApplicationStatus>
+        {
+            application.Status
+        }
+    );
+
+        foreach (var history in statusHistories)
+        {
+            reachedStatusesByApplication[history.JobApplicationId].Add(history.OldStatus);
+            reachedStatusesByApplication[history.JobApplicationId].Add(history.NewStatus);
+        }
+
+        ApplicationConversionRateResponse BuildConversionRate(
+            ApplicationStatus fromStatus,
+            ApplicationStatus toStatus,
+            string label)
+        {
+            var fromCount = reachedStatusesByApplication.Values
+                .Count(statuses => statuses.Contains(fromStatus));
+
+            var toCount = reachedStatusesByApplication.Values
+                .Count(statuses =>
+                    statuses.Contains(fromStatus) &&
+                    statuses.Contains(toStatus));
+
+            var rate = fromCount == 0
+                ? 0
+                : Math.Round((decimal)toCount / fromCount * 100, 1);
+
+            return new ApplicationConversionRateResponse
+            {
+                FromStatus = fromStatus,
+                ToStatus = toStatus,
+                Label = label,
+                FromCount = fromCount,
+                ToCount = toCount,
+                Rate = rate
+            };
+        }
+
+        var conversionRates = new List<ApplicationConversionRateResponse>
+        {
+            BuildConversionRate(
+                ApplicationStatus.Wishlist,
+                ApplicationStatus.Applied,
+                "Wishlist to Applied"
+            ),
+            BuildConversionRate(
+                ApplicationStatus.Applied,
+                ApplicationStatus.OnlineAssessment,
+                "Applied to Assessment"
+            ),
+            BuildConversionRate(
+                ApplicationStatus.Applied,
+                ApplicationStatus.Interviewing,
+                "Applied to Interviewing"
+            ),
+            BuildConversionRate(
+                ApplicationStatus.Interviewing,
+                ApplicationStatus.Offer,
+                "Interviewing to Offer"
+            ),
+            BuildConversionRate(
+                ApplicationStatus.Applied,
+                ApplicationStatus.Offer,
+                "Applied to Offer"
+            )
+        };
+
         var response = new DashboardStatsResponse
         {
             TotalApplications = await applications.CountAsync(),
@@ -100,6 +194,7 @@ public class DashboardController : ControllerBase
             PendingReminderCount = await reminders.CountAsync(x => !x.IsCompleted),
             ApplicationTrend = applicationTrend,
             ApplicationSourceCounts = applicationSourceCounts,
+            ConversionRates = conversionRates,
 
             UpcomingDeadlineCount = await applications.CountAsync(x =>
                 x.Deadline != null &&

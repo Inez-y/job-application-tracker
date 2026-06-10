@@ -50,7 +50,7 @@ export function ApplicationSourceChart({ data }: Props) {
 
       <div className="mt-4 h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} layout="vertical" margin={{ left: 24 }}>
+          <BarChart data={chartData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis type="number" allowDecimals={false} />
             <YAxis
