@@ -25,6 +25,9 @@ export type DashboardStats = {
   rejectedCount: number;
   withdrawnCount: number;
   upcomingDeadlineCount: number;
+  completedReminderCount: number;
+  pendingReminderCount: number;
   recentApplications: RecentApplication[];
   upcomingDeadlines: UpcomingDeadline[];
 };
+

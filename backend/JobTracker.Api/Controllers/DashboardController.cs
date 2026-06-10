@@ -15,7 +15,7 @@ namespace JobTracker.Api.Controllers;
 public class DashboardController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
-private readonly ICurrentUserService _currentUserService;
+    private readonly ICurrentUserService _currentUserService;
 
 
     public DashboardController(
@@ -37,6 +37,9 @@ private readonly ICurrentUserService _currentUserService;
         var now = DateTime.UtcNow;
         var nextSevenDays = now.AddDays(7);
 
+        var reminders = _dbContext.Reminders
+            .Where(x => x.JobApplication.UserId == userId);
+
         var response = new DashboardStatsResponse
         {
             TotalApplications = await applications.CountAsync(),
@@ -48,6 +51,8 @@ private readonly ICurrentUserService _currentUserService;
             OfferCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Offer),
             RejectedCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Rejected),
             WithdrawnCount = await applications.CountAsync(x => x.Status == ApplicationStatus.Withdrawn),
+                CompletedReminderCount = await reminders.CountAsync(x => x.IsCompleted),
+    PendingReminderCount = await reminders.CountAsync(x => !x.IsCompleted),
 
             UpcomingDeadlineCount = await applications.CountAsync(x =>
                 x.Deadline != null &&

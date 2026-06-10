@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { getDashboardStats, getUpcomingReminders } from "../api/dashboardApi";
+import { ApplicationStatusChart } from "../features/dashboard/ApplicationStatusChart";
+import { ReminderCompletionChart } from "../features/dashboard/ReminderCompletionChart";
 
 const statusLabels: Record<string, string> = {
   wishlistCount: "Wishlist",
@@ -113,6 +115,18 @@ export function DashboardPage() {
               Applications by Status
             </h2>
 
+            {stats && (
+              <ApplicationStatusChart
+                wishlistCount={stats.wishlistCount}
+                appliedCount={stats.appliedCount}
+                onlineAssessmentCount={stats.onlineAssessmentCount}
+                interviewingCount={stats.interviewingCount}
+                offerCount={stats.offerCount}
+                rejectedCount={stats.rejectedCount}
+                withdrawnCount={stats.withdrawnCount}
+              />
+            )}
+
             <div className="mt-4 space-y-3">
               {statusCounts.map(([key, count, status]) => (
                 <Link
@@ -194,8 +208,14 @@ export function DashboardPage() {
               Upcoming Reminders
             </h2>
 
+              <ReminderCompletionChart
+                completedCount={stats.completedReminderCount}
+                pendingCount={stats.pendingReminderCount}
+              />
+
             {!reminders || reminders.length === 0 ? (
-              <p className="mt-4 text-slate-600">No upcoming reminders.</p>
+              // No upcoming deadlines.
+              <p className="mt-4 text-slate-600"> </p>
             ) : (
               <div className="mt-4 space-y-3">
                 {reminders.map((reminder) => (

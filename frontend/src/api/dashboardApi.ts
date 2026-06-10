@@ -4,6 +4,7 @@ import type { UpcomingReminder } from "../types/upcomingReminder";
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   const response = await axiosClient.get<DashboardStats>("/api/dashboard/stats");
+
   return response.data;
 }
 
