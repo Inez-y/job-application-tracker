@@ -15,6 +15,15 @@ export type ApplicationStatus =
   | 5 // Rejected
   | 6; // Withdrawn
 
+export type ApplicationSource = 
+  | 0 // LinkedIn
+  | 1 // Indeed
+  | 2 // CompanyWebsite
+  | 3 // Referral
+  | 4 // Recruiter
+  | 5 // Handshake
+  | 6; // Other
+
 export type JobApplication = {
   id: string;
   companyName: string;
@@ -28,6 +37,7 @@ export type JobApplication = {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  source: ApplicationSource;
 };
 
 export type CreateJobApplicationRequest = {
@@ -40,6 +50,7 @@ export type CreateJobApplicationRequest = {
   deadline?: string | null;
   salaryRange?: string | null;
   notes?: string | null;
+  source: ApplicationSource;
 };
 
 export type UpdateJobApplicationRequest = {
@@ -52,6 +63,7 @@ export type UpdateJobApplicationRequest = {
   deadline?: string | null;
   salaryRange?: string | null;
   notes?: string | null;
+  source: ApplicationSource;
 };
 
 export type ApplicationStatusHistory = {

@@ -40,6 +40,9 @@ export function ApplicationStatusChart({
 
   return (
     <Card>
+      <h2 className="text-lg font-semibold text-slate-900">
+        Applications by Status
+      </h2>
       <p className="mt-1 text-sm text-slate-600">
         Current distribution of your job applications.
       </p>

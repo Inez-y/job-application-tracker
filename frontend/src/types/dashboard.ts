@@ -20,6 +20,11 @@ export type ApplicationTrendResponse = {
   count: number;
 };
 
+export type ApplicationSourceCount = {
+  source: string;
+  count: number;
+};
+
 export type DashboardStats = {
   totalApplications: number;
   wishlistCount: number;
@@ -35,5 +40,6 @@ export type DashboardStats = {
   recentApplications: RecentApplication[];
   upcomingDeadlines: UpcomingDeadline[];
   applicationTrend: ApplicationTrendResponse[];
+  applicationSourceCounts: ApplicationSourceCount[];
 };
 

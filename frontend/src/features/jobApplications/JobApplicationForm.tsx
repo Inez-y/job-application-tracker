@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "../../components/ui/Button";
-import type { ApplicationStatus } from "../../types/jobApplication";
+import type { ApplicationSource, ApplicationStatus } from "../../types/jobApplication";
 
 const schema = z.object({
   companyName: z.string().min(1, "Company name is required."),
@@ -14,6 +14,7 @@ const schema = z.object({
   deadline: z.string().optional(),
   salaryRange: z.string().optional(),
   notes: z.string().optional(),
+  source: z.coerce.number().min(0).max(6),
 });
 
 export type JobApplicationFormInput = z.input<typeof schema>;
@@ -123,6 +124,29 @@ export function JobApplicationForm({
             placeholder="$30-$40/hr"
           />
         </div>
+      </div>
+
+      <div>
+        <label
+          htmlFor="source"
+          className="block text-sm font-medium text-slate-700"
+        >
+          Source
+        </label>
+
+        <select
+          id="source"
+          {...register("source", { valueAsNumber: true })}
+          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-900"
+        >
+          <option value={0}>LinkedIn</option>
+          <option value={1}>Indeed</option>
+          <option value={2}>Company Website</option>
+          <option value={3}>Referral</option>
+          <option value={4}>Recruiter</option>
+          <option value={5}>Handshake</option>
+          <option value={6}>Other</option>
+        </select>
       </div>
 
       <div>
@@ -244,4 +268,8 @@ export function JobApplicationForm({
 
 export function toApplicationStatus(value: number): ApplicationStatus {
   return value as ApplicationStatus;
+}
+
+export function toApplicationSource(value: number): ApplicationSource {
+  return value as ApplicationSource;
 }

@@ -13,4 +13,5 @@ public class UpdateJobApplicationRequest
     public DateTime? Deadline { get; set; }
     public string? SalaryRange { get; set; }
     public string? Notes { get; set; }
+    public ApplicationSource Source { get; set; }
 }

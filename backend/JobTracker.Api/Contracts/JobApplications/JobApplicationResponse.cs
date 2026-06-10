@@ -17,4 +17,5 @@ public class JobApplicationResponse
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public ApplicationSource Source { get; set; }
 }

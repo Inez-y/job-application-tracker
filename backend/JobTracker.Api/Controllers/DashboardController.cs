@@ -74,6 +74,16 @@ public class DashboardController : ControllerBase
                 Count = x.Count
             })
             .ToList();
+        
+        var applicationSourceCounts = await applications
+            .GroupBy(x => x.Source)
+            .Select(g => new ApplicationSourceCountResponse
+            {
+                Source = g.Key.ToString(),
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync();
 
         var response = new DashboardStatsResponse
         {
@@ -89,6 +99,7 @@ public class DashboardController : ControllerBase
             CompletedReminderCount = await reminders.CountAsync(x => x.IsCompleted),
             PendingReminderCount = await reminders.CountAsync(x => !x.IsCompleted),
             ApplicationTrend = applicationTrend,
+            ApplicationSourceCounts = applicationSourceCounts,
 
             UpcomingDeadlineCount = await applications.CountAsync(x =>
                 x.Deadline != null &&

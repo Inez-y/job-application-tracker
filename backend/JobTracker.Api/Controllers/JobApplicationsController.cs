@@ -127,7 +127,8 @@ public class JobApplicationsController : ControllerBase
           SalaryRange = request.SalaryRange,
           Notes = request.Notes,
           CreatedAt = DateTime.UtcNow,
-          UpdatedAt = DateTime.UtcNow
+          UpdatedAt = DateTime.UtcNow,
+          Source = request.Source,
         };
 
         _dbContext.JobApplications.Add(application);
@@ -183,6 +184,7 @@ public class JobApplicationsController : ControllerBase
         application.SalaryRange = request.SalaryRange;
         application.Notes = request.Notes;
         application.UpdatedAt = DateTime.UtcNow;
+        application.Source = request.Source;
 
         if (oldStatus != request.Status)
         {

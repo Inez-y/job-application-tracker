@@ -5,6 +5,7 @@ import { Card } from "../components/ui/Card";
 import {
   JobApplicationForm,
   type JobApplicationFormValues,
+  toApplicationSource,
   toApplicationStatus,
 } from "../features/jobApplications/JobApplicationForm";
 
@@ -32,6 +33,7 @@ export function CreateJobApplicationPage() {
           : null,
         salaryRange: values.salaryRange || null,
         notes: values.notes || null,
+        source: toApplicationSource(values.source),
       });
 
       navigate("/applications");
@@ -66,6 +68,7 @@ export function CreateJobApplicationPage() {
               deadline: "",
               salaryRange: "",
               notes: "",
+              source: 0,
             }}
             submitLabel="Create Application"
             submittingLabel="Creating..."

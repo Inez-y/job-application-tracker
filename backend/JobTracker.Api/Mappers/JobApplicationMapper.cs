@@ -20,7 +20,8 @@ public static class JobApplicationMapper
             SalaryRange = application.SalaryRange,
             Notes = application.Notes,
             CreatedAt = application.CreatedAt,
-            UpdatedAt = application.UpdatedAt
+            UpdatedAt = application.UpdatedAt,
+            Source = application.Source,
         };
     }
 }

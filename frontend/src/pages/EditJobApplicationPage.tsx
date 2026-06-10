@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
+import { Card } from "../components/ui/Card";
 import {
   deleteJobApplication,
   getJobApplicationById,
   updateJobApplication,
 } from "../api/jobApplicationsApi";
-import { Card } from "../components/ui/Card";
 import {
   JobApplicationForm,
   type JobApplicationFormValues,
+  toApplicationSource,
   toApplicationStatus,
 } from "../features/jobApplications/JobApplicationForm";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 
 
 function toDateInputValue(value: string | null): string {
@@ -60,6 +61,7 @@ export function EditJobApplicationPage() {
           : null,
         salaryRange: values.salaryRange || null,
         notes: values.notes || null,
+        source: toApplicationSource(values.source),
       });
 
       navigate(`/applications/${id}`);
@@ -137,6 +139,7 @@ export function EditJobApplicationPage() {
               deadline: toDateInputValue(data.deadline),
               salaryRange: data.salaryRange ?? "",
               notes: data.notes ?? "",
+              source: data.source,
             }}
             submitLabel="Save Changes"
             submittingLabel="Saving..."

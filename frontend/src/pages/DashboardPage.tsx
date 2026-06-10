@@ -6,6 +6,7 @@ import { getDashboardStats, getUpcomingReminders } from "../api/dashboardApi";
 import { ApplicationStatusChart } from "../features/dashboard/ApplicationStatusChart";
 import { ReminderCompletionChart } from "../features/dashboard/ReminderCompletionChart";
 import { ApplicationTrendChart } from "../features/dashboard/ApplicationTrendChart";
+import { ApplicationSourceChart } from "../features/dashboard/ApplicationSourceChart";
 
 const statusLabels: Record<string, string> = {
   wishlistCount: "Wishlist",
@@ -110,17 +111,12 @@ export function DashboardPage() {
               <p className="mt-2 text-sm text-slate-500">View reminder details</p>
             </Card>
           </Link>
-
-          <ApplicationTrendChart data={stats.applicationTrend} />
         </section>
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
-          <Card>
-            <h2 className="text-lg font-semibold text-slate-900">
-              Applications by Status
-            </h2>
-
-            {stats && (
+          <ApplicationTrendChart data={stats.applicationTrend} />
+          <ApplicationSourceChart data={stats.applicationSourceCounts} />
+          {stats && (
               <ApplicationStatusChart
                 wishlistCount={stats.wishlistCount}
                 appliedCount={stats.appliedCount}
@@ -130,7 +126,18 @@ export function DashboardPage() {
                 rejectedCount={stats.rejectedCount}
                 withdrawnCount={stats.withdrawnCount}
               />
-            )}
+          )}
+          <ReminderCompletionChart
+                completedCount={stats.completedReminderCount}
+                pendingCount={stats.pendingReminderCount}
+          />
+        </section>
+
+        <section className="mt-6 grid gap-6 lg:grid-cols-2">
+          <Card>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Applications by Status
+            </h2>
 
             <div className="mt-4 space-y-3">
               {statusCounts.map(([key, count, status]) => (
@@ -213,14 +220,8 @@ export function DashboardPage() {
               Upcoming Reminders
             </h2>
 
-              <ReminderCompletionChart
-                completedCount={stats.completedReminderCount}
-                pendingCount={stats.pendingReminderCount}
-              />
-
             {!reminders || reminders.length === 0 ? (
-              // No upcoming deadlines.
-              <p className="mt-4 text-slate-600"> </p>
+              <p className="mt-4 text-slate-600"> No upcoming deadlines. </p>
             ) : (
               <div className="mt-4 space-y-3">
                 {reminders.map((reminder) => (

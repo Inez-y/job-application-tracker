@@ -16,6 +16,7 @@ public class JobApplication
     public string? JobUrl { get; set; }
 
     public ApplicationStatus Status { get; set; } = ApplicationStatus.Wishlist;
+    public ApplicationSource Source { get; set; } = ApplicationSource.Other;
     public List<ApplicationNote> ApplicationNotes { get; set; } = new();
     public List<ApplicationStatusHistory> StatusHistory { get; set; } = new();
     public List<Reminder> Reminders { get; set; } = new();
@@ -34,3 +35,4 @@ public class JobApplication
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public List<Interview> Interviews { get; set; } = new();
 }
+
